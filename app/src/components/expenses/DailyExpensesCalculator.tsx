@@ -5,7 +5,6 @@ import { useFinancialStore } from '../../store/financialStore';
 import { CurrencyInput } from '../shared/CurrencyInput';
 import { formatCurrency } from '../../utils/formatters';
 import { recalculateDailyExpenses } from '../../utils/calculations';
-import { Calculator } from 'lucide-react';
 
 export function DailyExpensesCalculator() {
   const { config, months, updateDailyExpensesEstimate } = useFinancialStore();
@@ -46,7 +45,7 @@ export function DailyExpensesCalculator() {
         />
         <button
           onClick={handleUpdate}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
         >
           Atualizar
         </button>

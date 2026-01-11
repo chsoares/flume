@@ -1,7 +1,13 @@
 // pages/TripsPage.tsx
 
+import { TripDashboard } from '../components/trips/TripDashboard';
 import { TripsList } from '../components/trips/TripsList';
 
 export function TripsPage() {
-  return <TripsList />;
+  return (
+    <div className="space-y-6">
+      <TripDashboard />
+      <TripsList />
+    </div>
+  );
 }

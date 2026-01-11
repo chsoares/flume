@@ -4,8 +4,6 @@ interface MonthPickerProps {
   value: string; // 'YYYY-MM'
   onChange: (value: string) => void;
   label?: string;
-  minDate?: string;
-  maxDate?: string;
   className?: string;
 }
 
@@ -28,11 +26,8 @@ export function MonthPicker({
   value,
   onChange,
   label,
-  minDate,
-  maxDate,
   className = '',
 }: MonthPickerProps) {
-  const currentYear = new Date().getFullYear();
   const startYear = 2026;
   const years = Array.from({ length: 10 }, (_, i) => startYear + i);
 

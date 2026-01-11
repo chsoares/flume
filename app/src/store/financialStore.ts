@@ -316,9 +316,8 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
               status: 'finalized' as MonthStatus,
               realData: {
                 income: { ...m.income },
-                trips: {
-                  expenses: m.expenses.trips,
-                  dailyBudget: 0, // Será editado posteriormente
+                expenses: {
+                  daily: m.expenses.daily,
                 },
                 investments: Object.fromEntries(
                   Object.entries(m.investments).map(([id, inv]) => {

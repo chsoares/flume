@@ -89,6 +89,9 @@ export interface MonthData {
       salary: number;
       extraordinary: number;
     };
+    expenses: {
+      daily: number;
+    };
     investments: {
       [investmentId: string]: {
         deposit: number; // Movimentações (aporte ou resgate)

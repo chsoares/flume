@@ -5,7 +5,7 @@ import { useFinancialStore } from '../../store/financialStore';
 import { CurrencyInput } from '../shared/CurrencyInput';
 import { MonthPicker } from '../shared/MonthPicker';
 import { formatCurrency } from '../../utils/formatters';
-import { Plus, Trash2, TrendingUp } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 export function SalaryConfig() {
   const { config, updateSalary } = useFinancialStore();
@@ -69,7 +69,7 @@ export function SalaryConfig() {
         />
         <button
           onClick={handleUpdateBase}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
         >
           Atualizar
         </button>

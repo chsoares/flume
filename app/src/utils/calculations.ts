@@ -224,12 +224,7 @@ function distributeInvestments(
   return result;
 }
 
-/**
- * Calcula o total de aportes realizados (sem considerar rendimentos)
- */
-function getTotalDeposits(investments: MonthData['investments']): number {
-  return Object.values(investments).reduce((sum, inv) => sum + inv.deposit, 0);
-}
+
 
 /**
  * Calcula os dados projetados de um mês
@@ -371,6 +366,16 @@ export function getTripDetailsForMonth(monthStr: string, trips: Trip[]): Array<{
   }
 
   return details;
+}
+
+/**
+ * Obtém detalhes de receitas extraordinárias para um mês específico
+ */
+export function getExtraordinaryIncomeDetailsForMonth(
+  monthStr: string,
+  extraordinaryIncome: any[]
+): any[] {
+  return extraordinaryIncome.filter(income => income.month === monthStr);
 }
 
 /**

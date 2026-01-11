@@ -41,31 +41,13 @@ export function InvestmentDashboard() {
     };
   });
 
-  const totalCurrent = investmentStats.reduce((sum, inv) => sum + inv.currentBalance, 0);
-  const totalProjected = investmentStats.reduce((sum, inv) => sum + inv.projectedBalance, 0);
-  const totalYield = investmentStats.reduce((sum, inv) => sum + inv.totalYield, 0);
+
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <h3 className="text-xl font-bold text-slate-800 mb-6 border-b pb-3">
         Dashboard de Investimentos
       </h3>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-4">
-          <p className="text-sm opacity-90 mb-1">Saldo Atual</p>
-          <p className="text-2xl font-bold">{formatCurrency(totalCurrent)}</p>
-        </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-4">
-          <p className="text-sm opacity-90 mb-1">Saldo Projetado (Dez)</p>
-          <p className="text-2xl font-bold">{formatCurrency(totalProjected)}</p>
-        </div>
-        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-4">
-          <p className="text-sm opacity-90 mb-1">Rendimento Total</p>
-          <p className="text-2xl font-bold">{formatCurrency(totalYield)}</p>
-        </div>
-      </div>
 
       {/* Investment Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
