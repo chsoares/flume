@@ -143,7 +143,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
         {/* Receitas */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-green-700 flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
               RECEITAS
             </h3>
@@ -192,7 +192,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
         {/* Despesas */}
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-red-800 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-red-700 flex items-center gap-2">
               <TrendingDown className="w-5 h-5" />
               DESPESAS
             </h3>
@@ -303,7 +303,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
         {/* Investimentos */}
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-purple-800 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-purple-700 flex items-center gap-2">
               <PiggyBank className="w-5 h-5" />
               INVESTIMENTOS
             </h3>
@@ -328,7 +328,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
               return (
                 <div key={investmentId}>
                   <div className="flex justify-between items-center mb-1 text-base">
-                    <p className="text-purple-900 font-medium">{investment.name}</p>
+                    <p className="text-purple-700 font-medium">{investment.name}</p>
                     {isEditing ? (
                       <div className="w-40">
                         <CurrencyInput
