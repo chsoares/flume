@@ -25,22 +25,11 @@ export function TripDashboard() {
     return format(new Date(dateStr), 'dd/MM/yyyy', { locale: ptBR });
   }
 
-  const totalTrips = config.trips.length;
-  const totalTripsBudget = config.trips.reduce((sum, trip) => sum + calculateTripTotal(trip), 0);
-
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6 border-b pb-3">
-        <h3 className="text-xl font-bold text-slate-800">Viagens Planejadas</h3>
-        <div className="text-right">
-          <p className="text-sm text-slate-600">
-            {totalTrips} viagem{totalTrips !== 1 ? 's' : ''} planejada{totalTrips !== 1 ? 's' : ''}
-          </p>
-          <p className="text-lg font-bold text-blue-600">
-            Total: {formatCurrency(totalTripsBudget)}
-          </p>
-        </div>
-      </div>
+      <h3 className="text-xl font-bold text-slate-800 mb-6 border-b pb-3">
+        Dashboard de Viagens
+      </h3>
 
       {config.trips.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -76,21 +65,21 @@ export function TripDashboard() {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Diária total:</span>
-                    <span className="font-bold text-slate-700">{formatCurrency(trip.dailyBudget)}/dia</span>
+                    <span className="text-slate-600">Orçamento diário:</span>
+                    <span className="font-medium text-slate-700">{formatCurrency(trip.dailyBudget)}/dia</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600">Orçamento diário ({days} dias):</span>
+                    <span className="text-slate-600">Diária total:</span>
                     <span className="font-medium text-slate-700">{formatCurrency(dailyTotal)}</span>
                   </div>
                   {preExpensesTotal > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-slate-600 font-medium">Pré-gastos:</span>
+                      <span className="text-slate-600">Gastos:</span>
                       <span className="font-medium text-slate-700">{formatCurrency(preExpensesTotal)}</span>
                     </div>
                   )}
                   <div className="pt-2 border-t flex justify-between">
-                    <span className="font-bold text-slate-700">Total Estimado:</span>
+                    <span className="text-slate-700">Total:</span>
                     <span className="font-bold text-blue-600">{formatCurrency(total)}</span>
                   </div>
                 </div>

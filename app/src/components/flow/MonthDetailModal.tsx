@@ -110,6 +110,12 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
   const extraordinaryDetails = getExtraordinaryExpenseDetailsForMonth(month.month, config.extraordinaryExpenses);
   const extraordinaryIncomeDetails = getExtraordinaryIncomeDetailsForMonth(month.month, config.extraordinaryIncome);
 
+  // Calcular total de investimentos
+  const totalInvestments = Object.entries(month.investments).reduce((sum, [id, invData]) => {
+    const realInvData = month.realData?.investments[id];
+    return sum + (realInvData?.finalBalance ?? invData.finalBalance);
+  }, 0);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -141,7 +147,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
           </div>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between items-center">
-              <span className="text-slate-600 font-medium">Salário</span>
+              <span className="text-slate-600">Salário</span>
               {isEditing ? (
                 <div className="w-40">
                   <CurrencyInput
@@ -155,7 +161,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
             </div>
             {extraordinaryIncomeDetails.length > 0 && (
               <div>
-                <p className="text-slate-600 font-medium mb-1">Extraordinárias</p>
+                <p className="text-green-700 font-medium mb-1">Extraordinárias</p>
                 {extraordinaryIncomeDetails.map((income) => (
                   <div key={income.id} className="flex justify-between ml-4">
                     <span className="text-slate-500">{income.description}</span>
@@ -182,7 +188,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
             {/* Fixas */}
             {config.fixedExpenses.length > 0 && (
               <div>
-                <p className="text-slate-600 font-medium mb-1">Fixas</p>
+                <p className="text-red-700 font-medium mb-1">Fixas</p>
                 {config.fixedExpenses.map((expense) => (
                   <div key={expense.id} className="flex justify-between ml-4">
                     <span className="text-slate-500">{expense.name}</span>
@@ -195,7 +201,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
             {/* Extraordinárias */}
             {extraordinaryDetails.length > 0 && (
               <div>
-                <p className="text-slate-600 font-medium mb-1">Extraordinárias</p>
+                <p className="text-red-700 font-medium mb-1">Extraordinárias</p>
                 {extraordinaryDetails.map((expense) => (
                   <div key={expense.id} className="flex justify-between ml-4">
                     <span className="text-slate-500">{expense.description}</span>
@@ -208,19 +214,19 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
             {/* Viagens */}
             {tripDetails.length > 0 && (
               <div>
-                <p className="text-slate-600 font-medium mb-1">Viagens</p>
+                <p className="text-red-700 font-medium mb-1">Viagens</p>
                 {tripDetails.map((detail) => (
                   <div key={detail.trip.id} className="ml-4 space-y-1">
                     <p className="text-slate-700">{detail.trip.name}</p>
                     {detail.preExpenses > 0 && (
                       <div className="flex justify-between ml-4">
-                        <span className="text-slate-500 font-medium">Gastos</span>
+                        <span className="text-slate-500">Gastos</span>
                         <span>{formatCurrency(detail.preExpenses)}</span>
                       </div>
                     )}
                     {detail.dailyBudgetTotal > 0 && (
                       <div className="flex justify-between ml-4">
-                        <span className="text-slate-500 font-medium">Orçamento diário ({detail.dailyBudgetDays} dias)</span>
+                        <span className="text-slate-500">Orçamento diário ({detail.dailyBudgetDays} dias)</span>
                         <span>{formatCurrency(detail.dailyBudgetTotal)}</span>
                       </div>
                     )}
@@ -231,7 +237,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
 
             {/* Cotidianas (CALCULADO) */}
             <div className="flex justify-between items-center">
-              <span className="text-slate-600 font-medium">Cotidianas</span>
+              <span className="text-slate-600">Cotidianas</span>
               {isEditing ? (
                 <div className="w-40">
                   <CurrencyInput
@@ -250,11 +256,16 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
 
         {/* Investimentos */}
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <h3 className="text-lg font-bold text-purple-800 mb-4 flex items-center gap-2">
-            <PiggyBank className="w-5 h-5" />
-            INVESTIMENTOS
-          </h3>
-          <div className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-purple-800 flex items-center gap-2">
+              <PiggyBank className="w-5 h-5" />
+              INVESTIMENTOS
+            </h3>
+            <span className="text-xl font-bold text-purple-700">
+              {formatCurrency(totalInvestments)}
+            </span>
+          </div>
+          <div className="space-y-3">
             {Object.entries(month.investments).map(([investmentId, invData]) => {
               const investment = config.investments.find((inv) => inv.id === investmentId);
               if (!investment) return null;
@@ -269,8 +280,8 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                 : realInvData?.yield ?? invData.yield;
 
               return (
-                <div key={investmentId} className="pb-3 last:pb-0">
-                  <div className="flex justify-between items-center mb-2">
+                <div key={investmentId}>
+                  <div className="flex justify-between items-center mb-1">
                     <p className="text-purple-900 font-medium">{investment.name}</p>
                     {isEditing ? (
                       <div className="w-40">
@@ -288,7 +299,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                         />
                       </div>
                     ) : (
-                      <span className="text-purple-700 font-bold">{formatCurrency(displayFinalBalance)}</span>
+                      <span className="text-purple-700">{formatCurrency(displayFinalBalance)}</span>
                     )}
                   </div>
                   <div className="space-y-1 text-sm ml-4">

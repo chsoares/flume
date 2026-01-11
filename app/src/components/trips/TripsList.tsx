@@ -43,7 +43,7 @@ export function TripsList() {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <div className="flex items-center justify-between mb-6 border-b pb-3">
-        <h3 className="text-xl font-bold text-slate-800">Gerenciar Viagens</h3>
+        <h3 className="text-xl font-bold text-slate-800">Viagens Planejadas</h3>
         {!isAdding && (
           <button
             onClick={handleAddNew}
@@ -69,6 +69,7 @@ export function TripsList() {
                 <th className="px-4 py-3 text-left text-slate-600">Viagem</th>
                 <th className="px-4 py-3 text-center text-slate-600">Dias</th>
                 <th className="px-4 py-3 text-right text-slate-600">Orçamento Diário</th>
+                <th className="px-4 py-3 text-right text-slate-600">Gastos</th>
                 <th className="px-4 py-3 text-right text-slate-600">Total</th>
                 <th className="px-4 py-3 text-center text-slate-600">Ações</th>
               </tr>
@@ -77,6 +78,10 @@ export function TripsList() {
               {config.trips.map((trip) => {
                 const days = differenceInDays(new Date(trip.endDate), new Date(trip.startDate)) + 1;
                 const total = calculateTripTotal(trip);
+                const preExpensesTotal = trip.preExpenses.reduce(
+                  (sum: number, exp: any) => sum + exp.installments * exp.installmentValue,
+                  0
+                );
 
                 return (
                   <tr key={trip.id} className="hover:bg-slate-50">
@@ -89,8 +94,11 @@ export function TripsList() {
                         {days} dias
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-right font-medium">
+                    <td className="px-4 py-2 text-right">
                       {formatCurrency(trip.dailyBudget)}/dia
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {preExpensesTotal > 0 ? formatCurrency(preExpensesTotal) : '-'}
                     </td>
                     <td className="px-4 py-2 text-right font-bold text-blue-600">
                       {formatCurrency(total)}
