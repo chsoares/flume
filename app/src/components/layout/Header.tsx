@@ -1,8 +1,9 @@
 // components/layout/Header.tsx
 
 import { useLocation } from 'react-router-dom';
-import { RefreshCw, Plus } from 'lucide-react';
+import { RefreshCw, Plus, Cloud, CloudOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { useFinancialStore } from '../../store/financialStore';
+import { githubSync } from '../../services/githubSync';
 
 const pageTitles: Record<string, string> = {
   '/': 'Fluxo de Caixa',
@@ -14,7 +15,8 @@ const pageTitles: Record<string, string> = {
 
 export function Header() {
   const location = useLocation();
-  const { year, setYear, recalculateAllMonths, months, availableYears, createNewYear } = useFinancialStore();
+  const { year, setYear, recalculateAllMonths, months, availableYears, createNewYear, syncStatus, lastSyncError } = useFinancialStore();
+  const isAuthenticated = githubSync.isAuthenticated();
 
   const pageTitle = pageTitles[location.pathname] || 'flume';
 
@@ -62,6 +64,38 @@ export function Header() {
           >
             <Plus className="w-5 h-5 text-white" />
           </button>
+
+          {/* Sync Status Indicator */}
+          {isAuthenticated && (
+            <div className="h-10 flex items-center gap-2 px-3 text-sm text-slate-600">
+              {syncStatus === 'saving' && (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  <span>Salvando...</span>
+                </>
+              )}
+              {syncStatus === 'saved' && (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  <span className="text-green-600">Salvo</span>
+                </>
+              )}
+              {syncStatus === 'error' && (
+                <>
+                  <CloudOff className="w-4 h-4 text-red-500" />
+                  <span className="text-red-600" title={lastSyncError || 'Erro ao sincronizar'}>
+                    Erro
+                  </span>
+                </>
+              )}
+              {syncStatus === 'idle' && (
+                <>
+                  <Cloud className="w-4 h-4 text-slate-400" />
+                  <span className="text-slate-500">Sincronizado</span>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Recalculate Button */}
           <button

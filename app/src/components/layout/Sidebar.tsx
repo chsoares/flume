@@ -12,6 +12,7 @@ import {
   RotateCcw,
   FileText,
   Waves,
+  Settings,
 } from 'lucide-react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
@@ -27,6 +28,7 @@ export function Sidebar() {
     { path: '/expenses', label: 'Despesas', icon: CreditCard },
     { path: '/investments', label: 'Investimentos', icon: PiggyBank },
     { path: '/trips', label: 'Viagens', icon: Plane },
+    { path: '/settings', label: 'Configurações', icon: Settings },
   ];
 
   // Calcular resumos

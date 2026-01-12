@@ -9,18 +9,23 @@ import { IncomePage } from './pages/IncomePage';
 import { ExpensesPage } from './pages/ExpensesPage';
 import { InvestmentsPage } from './pages/InvestmentsPage';
 import { TripsPage } from './pages/TripsPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { useFinancialStore } from './store/financialStore';
 
 function App() {
   const { loadFromStorage, recalculateAllMonths, months } = useFinancialStore();
 
   useEffect(() => {
-    loadFromStorage();
+    const loadData = async () => {
+      await loadFromStorage();
 
-    // Se não há meses calculados, gerar inicialmente
-    if (months.length === 0) {
-      recalculateAllMonths();
-    }
+      // Se não há meses calculados, gerar inicialmente
+      if (months.length === 0) {
+        recalculateAllMonths();
+      }
+    };
+
+    loadData();
   }, []);
 
   return (
@@ -36,6 +41,7 @@ function App() {
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/investments" element={<InvestmentsPage />} />
               <Route path="/trips" element={<TripsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </main>
         </div>

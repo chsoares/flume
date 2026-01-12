@@ -21,8 +21,15 @@ import {
   getSalaryForMonth,
 } from '../utils/calculations';
 import { getSampleData } from '../utils/sampleData';
+import { githubSync } from '../services/githubSync';
+
+type SyncStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface FinancialStore extends FinancialState {
+  // Sync status
+  syncStatus: SyncStatus;
+  lastSyncError: string | null;
+
   // Actions
   setYear: (year: number) => void;
 
@@ -72,6 +79,7 @@ interface FinancialStore extends FinancialState {
   // Persistence
   persist: () => void;
   loadFromStorage: () => void;
+  loadFromGitHub: () => Promise<void>;
   resetStore: () => void;
   loadSampleData: () => void;
 }
@@ -95,16 +103,74 @@ const createDefaultState = (): FinancialState => ({
   yearEndBalances: {},
 });
 
+// Debounce timer para GitHub sync
+let githubSyncTimeout: NodeJS.Timeout | null = null;
+const GITHUB_SYNC_DEBOUNCE_MS = 2000; // 2 segundos
+
 export const useFinancialStore = create<FinancialStore>((set, get) => ({
   ...createDefaultState(),
+  syncStatus: 'idle' as SyncStatus,
+  lastSyncError: null,
 
   persist: () => {
     const state = get();
-    const { persist, loadFromStorage, resetStore, recalculateAllMonths, ...stateToSave } = state;
+    const { persist, loadFromStorage, loadFromGitHub, resetStore, recalculateAllMonths, syncStatus, lastSyncError, ...stateToSave } = state;
+
+    // Sempre salvar no localStorage imediatamente (backup local)
     saveToLocalStorage(stateToSave);
+
+    // Se autenticado com GitHub, sincronizar com debounce
+    if (githubSync.isAuthenticated()) {
+      // Limpar timer anterior se existir
+      if (githubSyncTimeout) {
+        clearTimeout(githubSyncTimeout);
+      }
+
+      // Marcar como "saving" (aguardando debounce)
+      set({ syncStatus: 'saving', lastSyncError: null });
+
+      // Criar novo timer para debounce
+      githubSyncTimeout = setTimeout(async () => {
+        try {
+          await githubSync.save(stateToSave);
+          set({ syncStatus: 'saved', lastSyncError: null });
+
+          // Limpar status "saved" após 2 segundos
+          setTimeout(() => {
+            if (get().syncStatus === 'saved') {
+              set({ syncStatus: 'idle' });
+            }
+          }, 2000);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+          console.error('Erro ao sincronizar com GitHub:', error);
+          set({ syncStatus: 'error', lastSyncError: errorMessage });
+        }
+      }, GITHUB_SYNC_DEBOUNCE_MS);
+    }
   },
 
-  loadFromStorage: () => {
+  loadFromStorage: async () => {
+    // Se autenticado com GitHub, tentar carregar de lá primeiro
+    if (githubSync.isAuthenticated()) {
+      try {
+        const githubData = await githubSync.load();
+        if (githubData) {
+          // Garantir que availableYears existe (para compatibilidade com dados antigos)
+          if (!githubData.availableYears) {
+            githubData.availableYears = [githubData.year];
+          }
+          set(githubData);
+          // Também salvar no localStorage como backup
+          saveToLocalStorage(githubData);
+          return;
+        }
+      } catch (error) {
+        console.error('Erro ao carregar do GitHub, usando localStorage:', error);
+      }
+    }
+
+    // Fallback para localStorage
     const loaded = loadFromLocalStorage();
     if (loaded) {
       // Garantir que availableYears existe (para compatibilidade com dados antigos)
@@ -112,6 +178,31 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
         loaded.availableYears = [loaded.year];
       }
       set(loaded);
+    }
+  },
+
+  loadFromGitHub: async () => {
+    if (!githubSync.isAuthenticated()) {
+      throw new Error('Não autenticado com GitHub');
+    }
+
+    try {
+      const githubData = await githubSync.load();
+      if (githubData) {
+        // Garantir que availableYears existe
+        if (!githubData.availableYears) {
+          githubData.availableYears = [githubData.year];
+        }
+        set(githubData);
+        // Recalcular os meses
+        get().recalculateAllMonths();
+        // Salvar no localStorage como backup
+        const { persist, loadFromStorage, loadFromGitHub, resetStore, recalculateAllMonths, syncStatus, lastSyncError, ...stateToSave } = get();
+        saveToLocalStorage(stateToSave);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar do GitHub:', error);
+      throw error;
     }
   },
 
