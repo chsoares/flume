@@ -9,13 +9,13 @@ export function getSampleData(): FinancialState {
   return {
     year,
     config: {
-      // Salário base: R$ 15.611,00 líquido (bruto: R$ 22.661,00)
+      // Salário base: R$ 8.500,00 líquido
       salary: {
-        baseValue: 15611,
+        baseValue: 8500,
         increases: [
           {
-            month: '2026-05', // Maio
-            value: 17050, // Aumento de R$ 2000 bruto = ~R$ 1439 líquido (mesma taxa de desconto)
+            month: '2026-07', // Julho
+            value: 9200, // Aumento de ~R$ 700
           },
         ],
       },
@@ -24,9 +24,9 @@ export function getSampleData(): FinancialState {
       extraordinaryIncome: [
         {
           id: generateUUID(),
-          month: '2026-02',
-          description: 'Dinheiro dos Pais (Viagem Londres)',
-          value: 15000,
+          month: '2026-12',
+          description: 'Bônus de Final de Ano',
+          value: 5000,
         },
       ],
 
@@ -85,7 +85,7 @@ export function getSampleData(): FinancialState {
         },
         {
           id: generateUUID(),
-          name: 'Tesouro Direto (VT)',
+          name: 'Tesouro Direto',
           minValueTarget: null, // Sem meta mínima
           allocationPercent: 80, // 80% após CDB atingir meta
           initialBalance: 55000,
@@ -97,53 +97,47 @@ export function getSampleData(): FinancialState {
       trips: [
         {
           id: generateUUID(),
-          name: 'Londres',
-          startDate: '2026-02-01',
-          endDate: '2026-02-15', // 15 dias
-          dailyBudget: (50 + 30) * 7.2, // (50 GBP alimentação + 30 GBP lazer) × câmbio 7.2
-          preExpenses: [], // Sem pré-gastos registrados no prototype
-        },
-        {
-          id: generateUUID(),
-          name: 'Tailândia',
-          startDate: '2026-11-01',
-          endDate: '2026-11-12', // 12 dias
-          dailyBudget: 300,
+          name: 'Buenos Aires',
+          startDate: '2026-03-15',
+          endDate: '2026-03-22', // 7 dias
+          dailyBudget: 400, // R$ 400/dia (alimentação + passeios)
           preExpenses: [
             {
               id: generateUUID(),
-              month: '2026-01',
-              description: 'Pacote Tailândia (20%)',
+              month: '2026-02',
+              description: 'Passagem Aérea Buenos Aires',
               installments: 1,
-              installmentValue: 3390 * 0.2 * 5.8, // 20% de 3390 USD
+              installmentValue: 1800,
             },
+            {
+              id: generateUUID(),
+              month: '2026-02',
+              description: 'Hotel Buenos Aires',
+              installments: 1,
+              installmentValue: 2100,
+            },
+          ],
+        },
+        {
+          id: generateUUID(),
+          name: 'Nordeste',
+          startDate: '2026-07-10',
+          endDate: '2026-07-20', // 10 dias
+          dailyBudget: 350, // R$ 350/dia
+          preExpenses: [
             {
               id: generateUUID(),
               month: '2026-05',
-              description: 'Passagem Tailândia',
+              description: 'Passagem Aérea Nordeste',
               installments: 1,
-              installmentValue: 1500 * 5.8, // 1500 USD
+              installmentValue: 1200,
             },
             {
               id: generateUUID(),
-              month: '2026-08',
-              description: 'Pacote Tailândia (30%)',
+              month: '2026-06',
+              description: 'Resort Nordeste (entrada)',
               installments: 1,
-              installmentValue: 3390 * 0.3 * 5.8, // 30% de 3390 USD
-            },
-            {
-              id: generateUUID(),
-              month: '2026-09',
-              description: 'Pacote Tailândia (20%)',
-              installments: 1,
-              installmentValue: 3390 * 0.2 * 5.8, // 20% de 3390 USD
-            },
-            {
-              id: generateUUID(),
-              month: '2026-10',
-              description: 'Pacote Tailândia (30%)',
-              installments: 1,
-              installmentValue: 3390 * 0.3 * 5.8, // 30% de 3390 USD
+              installmentValue: 2500,
             },
           ],
         },

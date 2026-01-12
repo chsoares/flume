@@ -11,6 +11,7 @@ const pageTitles: Record<string, string> = {
   '/expenses': 'Despesas',
   '/investments': 'Investimentos',
   '/trips': 'Viagens',
+  '/settings': 'Configurações',
 };
 
 export function Header() {

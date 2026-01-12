@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { githubSync } from '../services/githubSync';
 import { useFinancialStore } from '../store/financialStore';
-import { Github, Check, X, AlertCircle } from 'lucide-react';
+import { Github, Check, X, AlertCircle, Download, Upload, RotateCcw, FileText } from 'lucide-react';
+import { exportToJSON, importFromJSON, clearLocalStorage } from '../utils/persistence';
 
 export function SettingsPage() {
   const [token, setToken] = useState('');
@@ -11,7 +12,7 @@ export function SettingsPage() {
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const { loadFromGitHub } = useFinancialStore();
+  const { loadFromGitHub, loadSampleData, resetStore, recalculateAllMonths } = useFinancialStore();
 
   useEffect(() => {
     setIsAuthenticated(githubSync.isAuthenticated());
@@ -68,6 +69,59 @@ export function SettingsPage() {
     }
   }
 
+  function handleExport() {
+    const state = useFinancialStore.getState();
+    const { persist, loadFromStorage, loadFromGitHub, resetStore, recalculateAllMonths, syncStatus, lastSyncError, ...stateToExport } = state;
+    const json = exportToJSON(stateToExport);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `flume-backup-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+  }
+
+  function handleImport() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const json = e.target?.result as string;
+          const state = importFromJSON(json);
+          useFinancialStore.setState(state);
+          recalculateAllMonths();
+          useFinancialStore.getState().persist();
+          alert('Dados importados com sucesso!');
+        } catch (error) {
+          alert('Erro ao importar arquivo. Verifique o formato.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function handleReset() {
+    if (confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita.')) {
+      resetStore();
+      clearLocalStorage();
+      window.location.reload();
+    }
+  }
+
+  function handleLoadSample() {
+    if (confirm('Deseja carregar dados de exemplo? Isso substituirá os dados atuais.')) {
+      loadSampleData();
+      window.location.reload();
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-white rounded-xl shadow-lg p-6">
@@ -93,7 +147,7 @@ export function SettingsPage() {
                   </a>
                 </li>
                 <li>Clique em "Generate new token" (classic)</li>
-                <li>Dê um nome como "Flumen Sync"</li>
+                <li>Dê um nome como "Flume Sync"</li>
                 <li>
                   Selecione apenas a permissão <strong>gist</strong>
                 </li>
@@ -182,6 +236,45 @@ export function SettingsPage() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Gerenciamento de Dados */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-slate-800 mb-6">Gerenciamento de Dados</h2>
+
+        <div className="space-y-3">
+          <button
+            onClick={handleLoadSample}
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-blue-700 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Carregar Exemplo</span>
+          </button>
+
+          <button
+            onClick={handleExport}
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span>Exportar JSON</span>
+          </button>
+
+          <button
+            onClick={handleImport}
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Importar JSON</span>
+          </button>
+
+          <button
+            onClick={handleReset}
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-red-900 hover:bg-red-800 text-white rounded-lg transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Reset</span>
+          </button>
+        </div>
       </div>
     </div>
   );

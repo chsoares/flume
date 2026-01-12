@@ -7,16 +7,11 @@ import {
   CreditCard,
   PiggyBank,
   Plane,
-  Download,
-  Upload,
-  RotateCcw,
-  FileText,
   Waves,
   Settings,
 } from 'lucide-react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
-import { exportToJSON, importFromJSON, clearLocalStorage } from '../../utils/persistence';
 
 export function Sidebar() {
   const location = useLocation();
@@ -54,59 +49,6 @@ export function Sidebar() {
   const finalBalance = lastMonth
     ? Object.values(lastMonth.investments).reduce((sum, inv) => sum + inv.finalBalance, 0)
     : 0;
-
-  function handleExport() {
-    const state = useFinancialStore.getState();
-    const { persist, loadFromStorage, resetStore, recalculateAllMonths, ...stateToExport } = state;
-    const json = exportToJSON(stateToExport);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `flume-backup-${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-  }
-
-  function handleImport() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const json = e.target?.result as string;
-          const state = importFromJSON(json);
-          useFinancialStore.setState(state);
-          useFinancialStore.getState().recalculateAllMonths();
-          useFinancialStore.getState().persist();
-          alert('Dados importados com sucesso!');
-        } catch (error) {
-          alert('Erro ao importar arquivo. Verifique o formato.');
-        }
-      };
-      reader.readAsText(file);
-    };
-    input.click();
-  }
-
-  function handleReset() {
-    if (confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita.')) {
-      useFinancialStore.getState().resetStore();
-      clearLocalStorage();
-      window.location.reload();
-    }
-  }
-
-  function handleLoadSample() {
-    if (confirm('Deseja carregar dados de exemplo? Isso substituirá os dados atuais.')) {
-      useFinancialStore.getState().loadSampleData();
-      window.location.reload();
-    }
-  }
 
   return (
     <aside className="w-64 bg-slate-800 text-white min-h-screen p-6 flex flex-col">
@@ -164,41 +106,6 @@ export function Sidebar() {
           <p className="text-slate-400 text-xs mb-1">Saldo Final</p>
           <p className="text-lg font-bold text-purple-400">{formatCurrency(finalBalance)}</p>
         </div>
-      </div>
-
-      {/* Utility Buttons */}
-      <div className="space-y-2">
-        <button
-          onClick={handleLoadSample}
-          className="w-full flex items-center gap-2 px-4 py-2 text-sm bg-blue-700 hover:bg-blue-600 rounded-lg transition-colors"
-        >
-          <FileText className="w-4 h-4" />
-          <span>Carregar Exemplo</span>
-        </button>
-
-        <button
-          onClick={handleExport}
-          className="w-full flex items-center gap-2 px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          <span>Exportar JSON</span>
-        </button>
-
-        <button
-          onClick={handleImport}
-          className="w-full flex items-center gap-2 px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
-        >
-          <Upload className="w-4 h-4" />
-          <span>Importar JSON</span>
-        </button>
-
-        <button
-          onClick={handleReset}
-          className="w-full flex items-center gap-2 px-4 py-2 text-sm bg-red-900 hover:bg-red-800 rounded-lg transition-colors"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span>Reset</span>
-        </button>
       </div>
     </aside>
   );
