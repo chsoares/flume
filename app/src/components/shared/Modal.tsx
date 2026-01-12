@@ -1,6 +1,7 @@
 // components/shared/Modal.tsx
 
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
 import { X } from 'lucide-react';
 
@@ -41,9 +42,9 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', headerAct
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 overflow-y-auto"
       onClick={onClose}
     >
       <div
@@ -69,6 +70,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', headerAct
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
