@@ -188,7 +188,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
         }));
         setRealFixedExpenses(fixedExpensesDetails);
 
-        setRealDailyExpenses(dailyExpenses);
+        setRealDailyExpenses(month.expenses.daily);
 
         const extraordinaryExpenseDetails = getExtraordinaryExpenseDetailsForMonth(
           month.month,

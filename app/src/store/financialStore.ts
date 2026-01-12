@@ -104,7 +104,7 @@ const createDefaultState = (): FinancialState => ({
 });
 
 // Debounce timer para GitHub sync
-let githubSyncTimeout: NodeJS.Timeout | null = null;
+let githubSyncTimeout: ReturnType<typeof setTimeout> | null = null;
 const GITHUB_SYNC_DEBOUNCE_MS = 2000; // 2 segundos
 
 export const useFinancialStore = create<FinancialStore>((set, get) => ({
@@ -271,7 +271,6 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
     // Para despesas extraordinárias, manter as que ainda têm parcelas no novo ano
     const filteredExtraordinaryExpenses = state.config.extraordinaryExpenses.filter(expense => {
       const [startYear, startMonth] = expense.startMonth.split('-').map(Number);
-      const startDate = new Date(startYear, startMonth - 1, 1);
       const endDate = new Date(startYear, startMonth - 1 + expense.installments, 0);
       const yearStart = new Date(newYear, 0, 1);
 
