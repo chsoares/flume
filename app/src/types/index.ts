@@ -84,13 +84,22 @@ export interface MonthData {
     [investmentId: string]: InvestmentMonthData;
   };
   // Valores reais (quando status = 'finalized')
+  // Quando um mês é concretizado, TODOS os valores são congelados aqui
+  // e não são mais afetados por mudanças nas configurações
   realData?: {
     income: {
       salary: number;
-      extraordinary: number;
+      extraordinary: { id: string; description: string; value: number }[];
     };
     expenses: {
+      fixed: { id: string; name: string; value: number }[];
       daily: number;
+      extraordinary: { id: string; description: string; value: number }[];
+      trips: {
+        id: string;
+        name: string;
+        items: { description: string; value: number }[];
+      }[];
     };
     investments: {
       [investmentId: string]: {

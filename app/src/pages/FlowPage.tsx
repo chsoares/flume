@@ -23,6 +23,19 @@ export function FlowPage() {
     setSelectedMonth(null);
   }
 
+  function handleNavigate(direction: 'prev' | 'next') {
+    if (!selectedMonth) return;
+
+    const currentIndex = months.findIndex((m) => m.month === selectedMonth.month);
+    if (currentIndex === -1) return;
+
+    const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+
+    if (newIndex >= 0 && newIndex < months.length) {
+      setSelectedMonth(months[newIndex]);
+    }
+  }
+
   // Calculate summary cards
   const totalIncome = months.reduce(
     (sum, m) => sum + m.income.salary + m.income.extraordinary,
@@ -115,6 +128,7 @@ export function FlowPage() {
         isOpen={isModalOpen}
         onClose={closeModal}
         month={selectedMonth}
+        onNavigate={handleNavigate}
       />
     </div>
   );

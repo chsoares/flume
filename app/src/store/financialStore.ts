@@ -13,7 +13,12 @@ import type {
   MonthStatus,
 } from '../types';
 import { saveToLocalStorage, loadFromLocalStorage } from '../utils/persistence';
-import { generateMonthsForYear } from '../utils/calculations';
+import {
+  generateMonthsForYear,
+  getTripDetailsForMonth,
+  getExtraordinaryExpenseDetailsForMonth,
+  getExtraordinaryIncomeDetailsForMonth,
+} from '../utils/calculations';
 import { getSampleData } from '../utils/sampleData';
 
 interface FinancialStore extends FinancialState {
@@ -53,6 +58,7 @@ interface FinancialStore extends FinancialState {
 
   // Months
   finalizeMonth: (monthStr: string) => void;
+  revertMonth: (monthStr: string) => void;
   updateMonthRealData: (monthStr: string, realData: MonthData['realData']) => void;
 
   // Recalculations
@@ -308,6 +314,52 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
   },
 
   finalizeMonth: (monthStr) => {
+    const state = get();
+    const month = state.months.find((m) => m.month === monthStr);
+    if (!month) return;
+
+    // Capturar receitas extraordinárias
+    const extraordinaryIncomeDetails = getExtraordinaryIncomeDetailsForMonth(
+      monthStr,
+      state.config.extraordinaryIncome
+    );
+
+    // Capturar despesas fixas
+    const fixedExpensesDetails = state.config.fixedExpenses.map((expense) => ({
+      id: expense.id,
+      name: expense.name,
+      value: expense.value,
+    }));
+
+    // Capturar despesas extraordinárias
+    const extraordinaryExpenseDetails = getExtraordinaryExpenseDetailsForMonth(
+      monthStr,
+      state.config.extraordinaryExpenses
+    ).map((expense) => ({
+      id: expense.id,
+      description: expense.description,
+      value: expense.installmentValue,
+    }));
+
+    // Capturar despesas de viagens
+    const tripDetails = getTripDetailsForMonth(monthStr, state.config.trips).map((detail) => {
+      const items = [];
+      if (detail.preExpenses > 0) {
+        items.push({ description: 'Gastos', value: detail.preExpenses });
+      }
+      if (detail.dailyBudgetTotal > 0) {
+        items.push({
+          description: `Orçamento diário (${detail.dailyBudgetDays} dias)`,
+          value: detail.dailyBudgetTotal,
+        });
+      }
+      return {
+        id: detail.trip.id,
+        name: detail.trip.name,
+        items,
+      };
+    });
+
     set((state) => ({
       months: state.months.map((m) =>
         m.month === monthStr
@@ -315,20 +367,29 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
               ...m,
               status: 'finalized' as MonthStatus,
               realData: {
-                income: { ...m.income },
+                income: {
+                  salary: m.income.salary,
+                  extraordinary: extraordinaryIncomeDetails.map((income) => ({
+                    id: income.id,
+                    description: income.description,
+                    value: income.value,
+                  })),
+                },
                 expenses: {
+                  fixed: fixedExpensesDetails,
                   daily: m.expenses.daily,
+                  extraordinary: extraordinaryExpenseDetails,
+                  trips: tripDetails,
                 },
                 investments: Object.fromEntries(
                   Object.entries(m.investments).map(([id, inv]) => {
-                    // Calcular rendimento: saldo final - saldo anterior - aportes
                     const calculatedYield = inv.finalBalance - inv.previousBalance - inv.deposit;
                     return [
                       id,
                       {
                         deposit: inv.deposit,
                         finalBalance: inv.finalBalance,
-                        yield: calculatedYield
+                        yield: calculatedYield,
                       },
                     ];
                   })
@@ -338,6 +399,22 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
           : m
       ),
     }));
+    get().persist();
+  },
+
+  revertMonth: (monthStr) => {
+    set((state) => ({
+      months: state.months.map((m) =>
+        m.month === monthStr
+          ? {
+              ...m,
+              status: 'projected' as MonthStatus,
+              realData: undefined,
+            }
+          : m
+      ),
+    }));
+    get().recalculateAllMonths();
     get().persist();
   },
 

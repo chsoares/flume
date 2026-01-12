@@ -1,11 +1,11 @@
 // components/flow/MonthDetailModal.tsx
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '../shared/Modal';
 import type { MonthData } from '../../types';
 import { formatCurrency, formatMonthFull } from '../../utils/formatters';
 import { useFinancialStore } from '../../store/financialStore';
-import { Edit, Save, CheckCircle, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
+import { Edit, Save, CheckCircle, TrendingUp, TrendingDown, PiggyBank, Undo2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTripDetailsForMonth, getExtraordinaryExpenseDetailsForMonth, getExtraordinaryIncomeDetailsForMonth } from '../../utils/calculations';
 import { CurrencyInput } from '../shared/CurrencyInput';
 
@@ -13,48 +13,121 @@ interface MonthDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   month: MonthData | null;
+  onNavigate?: (direction: 'prev' | 'next') => void;
 }
 
-export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalProps) {
-  const { config, finalizeMonth, updateMonthRealData } = useFinancialStore();
+export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate }: MonthDetailModalProps) {
+  const { config, months, finalizeMonth, revertMonth, updateMonthRealData } = useFinancialStore();
   const [isEditing, setIsEditing] = useState(false);
+
+  // Buscar o mês atualizado do store para refletir mudanças em tempo real
+  const month = monthProp ? months.find(m => m.month === monthProp.month) || monthProp : null;
 
   // Receitas
   const [realSalary, setRealSalary] = useState(0);
-  const [realExtras, setRealExtras] = useState(0);
+  const [realExtraordinaryIncome, setRealExtraordinaryIncome] = useState<{ id: string; description: string; value: number }[]>([]);
 
-  // Despesas cotidianas
+  // Despesas
+  const [realFixedExpenses, setRealFixedExpenses] = useState<{ id: string; name: string; value: number }[]>([]);
   const [realDailyExpenses, setRealDailyExpenses] = useState(0);
+  const [realExtraordinaryExpenses, setRealExtraordinaryExpenses] = useState<{ id: string; description: string; value: number }[]>([]);
+  const [realTrips, setRealTrips] = useState<{ id: string; name: string; items: { description: string; value: number }[] }[]>([]);
 
   // Investimentos
   const [realInvestments, setRealInvestments] = useState<Record<string, { deposit: number; finalBalance: number }>>({});
+
+  // Keyboard shortcuts for navigation
+  useEffect(() => {
+    if (!isOpen || !onNavigate) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        onNavigate('prev');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        onNavigate('next');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onNavigate]);
 
   if (!month) return null;
 
   const isFinalized = month.status === 'finalized';
 
-  // Dados de exibição
-  const displayIncome = isFinalized && month.realData
-    ? month.realData.income
-    : month.income;
+  // Dados de exibição - usar realData quando disponível
+  const displayIncomeSalary = isFinalized && month.realData
+    ? month.realData.income.salary
+    : month.income.salary;
 
-  // Calcular aportes totais
-  const totalDeposits = isFinalized && month.realData?.investments
-    ? Object.values(month.realData.investments).reduce((sum, inv) => sum + inv.deposit, 0)
-    : Object.values(month.investments).reduce((sum, inv) => sum + inv.deposit, 0);
+  // Obter detalhes para exibição (usar realData se disponível)
+  const displayExtraordinaryIncome = isFinalized && month.realData
+    ? month.realData.income.extraordinary
+    : getExtraordinaryIncomeDetailsForMonth(month.month, config.extraordinaryIncome).map(income => ({
+        id: income.id,
+        description: income.description,
+        value: income.value,
+      }));
 
-  // Calcular despesas cotidianas (CALCULADO)
-  const totalIncome = displayIncome.salary + displayIncome.extraordinary;
-  const otherExpenses = month.expenses.fixed + month.expenses.extraordinary + month.expenses.trips;
-  const dailyExpenses = totalIncome - totalDeposits - otherExpenses;
+  const displayFixedExpenses = isFinalized && month.realData
+    ? month.realData.expenses.fixed
+    : config.fixedExpenses.map(expense => ({
+        id: expense.id,
+        name: expense.name,
+        value: expense.value,
+      }));
 
-  const totalExpenses = month.expenses.fixed + dailyExpenses + month.expenses.extraordinary + month.expenses.trips;
+  const displayExtraordinaryExpenses = isFinalized && month.realData
+    ? month.realData.expenses.extraordinary
+    : getExtraordinaryExpenseDetailsForMonth(month.month, config.extraordinaryExpenses).map(expense => ({
+        id: expense.id,
+        description: expense.description,
+        value: expense.installmentValue,
+      }));
+
+  const displayTrips = isFinalized && month.realData
+    ? month.realData.expenses.trips
+    : getTripDetailsForMonth(month.month, config.trips).map(detail => {
+        const items = [];
+        if (detail.preExpenses > 0) {
+          items.push({ description: 'Gastos', value: detail.preExpenses });
+        }
+        if (detail.dailyBudgetTotal > 0) {
+          items.push({
+            description: `Orçamento diário (${detail.dailyBudgetDays} dias)`,
+            value: detail.dailyBudgetTotal,
+          });
+        }
+        return {
+          id: detail.trip.id,
+          name: detail.trip.name,
+          items,
+        };
+      });
+
+  const displayDailyExpenses = isFinalized && month.realData
+    ? month.realData.expenses.daily
+    : month.expenses.daily;
+
+  // Calcular totais
+  const totalExtraordinaryIncome = displayExtraordinaryIncome.reduce((sum, income) => sum + income.value, 0);
+  const totalIncome = displayIncomeSalary + totalExtraordinaryIncome;
+
+  const totalFixedExpenses = displayFixedExpenses.reduce((sum, expense) => sum + expense.value, 0);
+  const totalExtraordinaryExpenses = displayExtraordinaryExpenses.reduce((sum, expense) => sum + expense.value, 0);
+  const totalTripsExpenses = displayTrips.reduce((sum, trip) =>
+    sum + trip.items.reduce((s, item) => s + item.value, 0), 0);
+
+  const totalExpenses = totalFixedExpenses + displayDailyExpenses + totalExtraordinaryExpenses + totalTripsExpenses;
 
   function handleEdit() {
     if (!month) return;
 
     if (isEditing) {
-      // Calcular yields para cada investimento
+      // Salvar dados editados
       const investmentsWithYield = Object.fromEntries(
         Object.entries(realInvestments).map(([id, data]) => {
           const inv = month.investments[id];
@@ -73,19 +146,79 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
       updateMonthRealData(month.month, {
         income: {
           salary: realSalary,
-          extraordinary: realExtras,
+          extraordinary: realExtraordinaryIncome,
         },
         expenses: {
+          fixed: realFixedExpenses,
           daily: realDailyExpenses,
+          extraordinary: realExtraordinaryExpenses,
+          trips: realTrips,
         },
         investments: investmentsWithYield,
       });
       setIsEditing(false);
     } else {
-      // Entrar em modo de edição
-      setRealSalary(displayIncome.salary);
-      setRealExtras(displayIncome.extraordinary);
-      setRealDailyExpenses(dailyExpenses);
+      // Entrar em modo de edição - inicializar estados
+      if (month.realData) {
+        // Se já tem realData, usar esses valores
+        setRealSalary(month.realData.income.salary);
+        setRealExtraordinaryIncome(month.realData.income.extraordinary);
+        setRealFixedExpenses(month.realData.expenses.fixed);
+        setRealDailyExpenses(month.realData.expenses.daily);
+        setRealExtraordinaryExpenses(month.realData.expenses.extraordinary);
+        setRealTrips(month.realData.expenses.trips);
+      } else {
+        // Se não tem realData, usar valores projetados
+        setRealSalary(month.income.salary);
+
+        const extraordinaryIncomeDetails = getExtraordinaryIncomeDetailsForMonth(
+          month.month,
+          config.extraordinaryIncome
+        );
+        setRealExtraordinaryIncome(extraordinaryIncomeDetails.map(income => ({
+          id: income.id,
+          description: income.description,
+          value: income.value,
+        })));
+
+        const fixedExpensesDetails = config.fixedExpenses.map(expense => ({
+          id: expense.id,
+          name: expense.name,
+          value: expense.value,
+        }));
+        setRealFixedExpenses(fixedExpensesDetails);
+
+        setRealDailyExpenses(dailyExpenses);
+
+        const extraordinaryExpenseDetails = getExtraordinaryExpenseDetailsForMonth(
+          month.month,
+          config.extraordinaryExpenses
+        );
+        setRealExtraordinaryExpenses(extraordinaryExpenseDetails.map(expense => ({
+          id: expense.id,
+          description: expense.description,
+          value: expense.installmentValue,
+        })));
+
+        const tripDetails = getTripDetailsForMonth(month.month, config.trips);
+        setRealTrips(tripDetails.map(detail => {
+          const items = [];
+          if (detail.preExpenses > 0) {
+            items.push({ description: 'Gastos', value: detail.preExpenses });
+          }
+          if (detail.dailyBudgetTotal > 0) {
+            items.push({
+              description: `Orçamento diário (${detail.dailyBudgetDays} dias)`,
+              value: detail.dailyBudgetTotal,
+            });
+          }
+          return {
+            id: detail.trip.id,
+            name: detail.trip.name,
+            items,
+          };
+        }));
+      }
 
       const invData: Record<string, { deposit: number; finalBalance: number }> = {};
       Object.entries(month.investments).forEach(([id, inv]) => {
@@ -102,13 +235,15 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
   function handleFinalize() {
     if (!month) return;
     finalizeMonth(month.month);
-    onClose();
   }
 
-  // Obter detalhes de viagens e despesas extraordinárias
-  const tripDetails = getTripDetailsForMonth(month.month, config.trips);
-  const extraordinaryDetails = getExtraordinaryExpenseDetailsForMonth(month.month, config.extraordinaryExpenses);
-  const extraordinaryIncomeDetails = getExtraordinaryIncomeDetailsForMonth(month.month, config.extraordinaryIncome);
+  function handleRevert() {
+    if (!month) return;
+    if (window.confirm('Tem certeza que deseja reverter este mês para o estado previsto? Todos os dados editados serão perdidos.')) {
+      revertMonth(month.month);
+      setIsEditing(false);
+    }
+  }
 
   // Calcular total de investimentos
   const totalInvestments = Object.entries(month.investments).reduce((sum, [id, invData]) => {
@@ -116,26 +251,63 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
     return sum + (realInvData?.finalBalance ?? invData.finalBalance);
   }, 0);
 
-  // Calcular totais das subcategorias
-  const totalExtraordinaryIncome = extraordinaryIncomeDetails.reduce((sum, income) => sum + income.value, 0);
-  const totalFixedExpenses = config.fixedExpenses.reduce((sum, expense) => sum + expense.value, 0);
-  const totalExtraordinaryExpenses = extraordinaryDetails.reduce((sum, expense) => sum + expense.installmentValue, 0);
-  const totalTripsExpenses = tripDetails.reduce((sum, detail) => sum + detail.preExpenses + detail.dailyBudgetTotal, 0);
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={formatMonthFull(month.month)}
+      title={
+        <div className="flex items-center gap-3">
+          {onNavigate && (
+            <button
+              onClick={() => onNavigate('prev')}
+              className="p-1 hover:bg-slate-100 rounded transition-colors"
+              title="Mês anterior (←)"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-600" />
+            </button>
+          )}
+          <span>{formatMonthFull(month.month)}</span>
+          {onNavigate && (
+            <button
+              onClick={() => onNavigate('next')}
+              className="p-1 hover:bg-slate-100 rounded transition-colors"
+              title="Próximo mês (→)"
+            >
+              <ChevronRight className="w-5 h-5 text-slate-600" />
+            </button>
+          )}
+        </div>
+      }
       size="lg"
       headerActions={
-        <button
-          onClick={handleEdit}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
-        >
-          {isEditing ? <Save className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-          <span>{isEditing ? 'Salvar' : 'Editar'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {!isFinalized ? (
+            <button
+              onClick={handleFinalize}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Concretizar</span>
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleRevert}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
+              >
+                <Undo2 className="w-4 h-4" />
+                <span>Reverter</span>
+              </button>
+              <button
+                onClick={handleEdit}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+              >
+                {isEditing ? <Save className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+                <span>{isEditing ? 'Salvar' : 'Editar'}</span>
+              </button>
+            </>
+          )}
+        </div>
       }
     >
       <div className="space-y-6">
@@ -162,7 +334,7 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                   />
                 </div>
               ) : (
-                <span className="text-green-700">{formatCurrency(displayIncome.salary)}</span>
+                <span className="text-green-700">{formatCurrency(displayIncomeSalary)}</span>
               )}
             </div>
             <div>
@@ -170,14 +342,32 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                 <p className="text-green-700 font-medium">Extraordinárias</p>
                 <span className="text-green-700">{formatCurrency(totalExtraordinaryIncome)}</span>
               </div>
-              {extraordinaryIncomeDetails.length > 0 && (
-                <div className="text-sm">
-                  {extraordinaryIncomeDetails.map((income) => (
-                    <div key={income.id} className="flex justify-between ml-4">
-                      <span className="text-slate-500">{income.description}</span>
-                      <span>{formatCurrency(income.value)}</span>
-                    </div>
-                  ))}
+              {displayExtraordinaryIncome.length > 0 && (
+                <div className="text-sm space-y-1">
+                  {isEditing ? (
+                    realExtraordinaryIncome.map((income, index) => (
+                      <div key={income.id} className="flex justify-between ml-4 items-center">
+                        <span className="text-slate-500">{income.description}</span>
+                        <div className="w-32">
+                          <CurrencyInput
+                            value={income.value}
+                            onChange={(value) => {
+                              const updated = [...realExtraordinaryIncome];
+                              updated[index] = { ...income, value };
+                              setRealExtraordinaryIncome(updated);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    displayExtraordinaryIncome.map((income) => (
+                      <div key={income.id} className="flex justify-between ml-4">
+                        <span className="text-slate-500">{income.description}</span>
+                        <span>{formatCurrency(income.value)}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -202,14 +392,32 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                 <p className="text-red-700 font-medium">Fixas</p>
                 <span className="text-red-700">{formatCurrency(totalFixedExpenses)}</span>
               </div>
-              {config.fixedExpenses.length > 0 && (
-                <div className="text-sm">
-                  {config.fixedExpenses.map((expense) => (
-                    <div key={expense.id} className="flex justify-between ml-4">
-                      <span className="text-slate-500">{expense.name}</span>
-                      <span>{formatCurrency(expense.value)}</span>
-                    </div>
-                  ))}
+              {displayFixedExpenses.length > 0 && (
+                <div className="text-sm space-y-1">
+                  {isEditing ? (
+                    realFixedExpenses.map((expense, index) => (
+                      <div key={expense.id} className="flex justify-between ml-4 items-center">
+                        <span className="text-slate-500">{expense.name}</span>
+                        <div className="w-32">
+                          <CurrencyInput
+                            value={expense.value}
+                            onChange={(value) => {
+                              const updated = [...realFixedExpenses];
+                              updated[index] = { ...expense, value };
+                              setRealFixedExpenses(updated);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    displayFixedExpenses.map((expense) => (
+                      <div key={expense.id} className="flex justify-between ml-4">
+                        <span className="text-slate-500">{expense.name}</span>
+                        <span>{formatCurrency(expense.value)}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -220,14 +428,32 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                 <p className="text-red-700 font-medium">Extraordinárias</p>
                 <span className="text-red-700">{formatCurrency(totalExtraordinaryExpenses)}</span>
               </div>
-              {extraordinaryDetails.length > 0 && (
-                <div className="text-sm">
-                  {extraordinaryDetails.map((expense) => (
-                    <div key={expense.id} className="flex justify-between ml-4">
-                      <span className="text-slate-500">{expense.description}</span>
-                      <span>{formatCurrency(expense.installmentValue)}</span>
-                    </div>
-                  ))}
+              {displayExtraordinaryExpenses.length > 0 && (
+                <div className="text-sm space-y-1">
+                  {isEditing ? (
+                    realExtraordinaryExpenses.map((expense, index) => (
+                      <div key={expense.id} className="flex justify-between ml-4 items-center">
+                        <span className="text-slate-500">{expense.description}</span>
+                        <div className="w-32">
+                          <CurrencyInput
+                            value={expense.value}
+                            onChange={(value) => {
+                              const updated = [...realExtraordinaryExpenses];
+                              updated[index] = { ...expense, value };
+                              setRealExtraordinaryExpenses(updated);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    displayExtraordinaryExpenses.map((expense) => (
+                      <div key={expense.id} className="flex justify-between ml-4">
+                        <span className="text-slate-500">{expense.description}</span>
+                        <span>{formatCurrency(expense.value)}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -238,42 +464,62 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                 <p className="text-red-700 font-medium">Viagens</p>
                 <span className="text-red-700">{formatCurrency(totalTripsExpenses)}</span>
               </div>
-              {tripDetails.length > 0 && (
+              {displayTrips.length > 0 && (
                 <div className="text-sm">
-                  {tripDetails.map((detail) => (
-                    <div key={detail.trip.id} className="ml-4 space-y-1">
-                      <p className="text-slate-700">{detail.trip.name}</p>
-                      {detail.preExpenses > 0 && (
-                        <div className="flex justify-between ml-4">
-                          <span className="text-slate-500">Gastos</span>
-                          <span>{formatCurrency(detail.preExpenses)}</span>
-                        </div>
-                      )}
-                      {detail.dailyBudgetTotal > 0 && (
-                        <div className="flex justify-between ml-4">
-                          <span className="text-slate-500">Orçamento diário ({detail.dailyBudgetDays} dias)</span>
-                          <span>{formatCurrency(detail.dailyBudgetTotal)}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {isEditing ? (
+                    realTrips.map((trip, tripIndex) => (
+                      <div key={trip.id} className="ml-4 space-y-1">
+                        <p className="text-slate-700">{trip.name}</p>
+                        {trip.items.map((item, itemIndex) => (
+                          <div key={itemIndex} className="flex justify-between ml-4 items-center">
+                            <span className="text-slate-500">{item.description}</span>
+                            <div className="w-32">
+                              <CurrencyInput
+                                value={item.value}
+                                onChange={(value) => {
+                                  const updated = [...realTrips];
+                                  const updatedItems = [...updated[tripIndex].items];
+                                  updatedItems[itemIndex] = { ...item, value };
+                                  updated[tripIndex] = { ...trip, items: updatedItems };
+                                  setRealTrips(updated);
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))
+                  ) : (
+                    displayTrips.map((trip) => (
+                      <div key={trip.id} className="ml-4 space-y-1">
+                        <p className="text-slate-700">{trip.name}</p>
+                        {trip.items.map((item, index) => (
+                          <div key={index} className="flex justify-between ml-4">
+                            <span className="text-slate-500">{item.description}</span>
+                            <span>{formatCurrency(item.value)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Cotidianas (CALCULADO) */}
+            {/* Cotidianas (NÃO EDITÁVEL) */}
             <div className="flex justify-between items-center text-base">
               <span className="text-red-700 font-medium">Cotidianas</span>
               {isEditing ? (
                 <div className="w-40">
                   <CurrencyInput
-                    value={realDailyExpenses}
-                    onChange={setRealDailyExpenses}
+                    value={displayDailyExpenses}
+                    onChange={() => {}} // Não permite mudanças
+                    disabled={true}
                   />
                 </div>
               ) : (
                 <span className="text-red-700">
-                  {formatCurrency(Math.max(0, isFinalized ? month.realData?.expenses.daily ?? dailyExpenses : dailyExpenses))}
+                  {formatCurrency(displayDailyExpenses)}
                 </span>
               )}
             </div>
@@ -329,9 +575,19 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                     )}
                   </div>
                   <div className="space-y-1 text-sm ml-4">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-slate-600">Saldo Anterior</span>
-                      <span>{formatCurrency(invData.previousBalance)}</span>
+                      {isEditing ? (
+                        <div className="w-40">
+                          <CurrencyInput
+                            value={invData.previousBalance}
+                            onChange={() => {}} // Não permite mudanças
+                            disabled={true}
+                          />
+                        </div>
+                      ) : (
+                        <span>{formatCurrency(invData.previousBalance)}</span>
+                      )}
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600">Movimentações</span>
@@ -357,10 +613,18 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
                         </span>
                       )}
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-slate-600">Rendimento</span>
-                      {isFinalized || isEditing ? (
-                        <span className="text-blue-600 italic">
+                      {isEditing ? (
+                        <div className="w-40">
+                          <CurrencyInput
+                            value={calculatedYield}
+                            onChange={() => {}} // Não permite mudanças
+                            disabled={true}
+                          />
+                        </div>
+                      ) : isFinalized ? (
+                        <span className="text-slate-800">
                           {formatCurrency(calculatedYield)}
                         </span>
                       ) : (
@@ -374,16 +638,6 @@ export function MonthDetailModal({ isOpen, onClose, month }: MonthDetailModalPro
           </div>
         </div>
 
-        {/* Finalize Button */}
-        {month.status === 'projected' && (
-          <button
-            onClick={handleFinalize}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
-          >
-            <CheckCircle className="w-5 h-5" />
-            <span>Concretizar Mês</span>
-          </button>
-        )}
       </div>
     </Modal>
   );
