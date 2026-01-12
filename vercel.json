@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd app && npm run build",
-  "outputDirectory": "app/dist",
-  "installCommand": "cd app && npm install"
+  "installCommand": "npm install --prefix app",
+  "buildCommand": "npm run build --prefix app",
+  "outputDirectory": "app/dist"
 }
