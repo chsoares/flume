@@ -277,10 +277,24 @@ export function calculateProjectedMonth(
  */
 export function generateMonthsForYear(
   year: number,
-  config: FinancialState['config']
+  config: FinancialState['config'],
+  yearStartBalances?: { [investmentId: string]: number }
 ): MonthData[] {
   const months: MonthData[] = [];
   let previousInvestments: MonthData['investments'] | null = null;
+
+  // Se temos saldos iniciais do ano, criar investments iniciais com esses saldos
+  if (yearStartBalances) {
+    previousInvestments = {};
+    config.investments.forEach((inv) => {
+      previousInvestments![inv.id] = {
+        previousBalance: yearStartBalances[inv.id] ?? inv.initialBalance,
+        deposit: 0,
+        yield: 0,
+        finalBalance: yearStartBalances[inv.id] ?? inv.initialBalance,
+      };
+    });
+  }
 
   for (let month = 1; month <= 12; month++) {
     const monthStr = format(new Date(year, month - 1, 1), 'yyyy-MM');

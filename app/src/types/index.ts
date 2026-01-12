@@ -113,6 +113,7 @@ export interface MonthData {
 
 export interface FinancialState {
   year: number;
+  availableYears: number[]; // Anos disponíveis para visualização
   config: {
     salary: SalaryConfig;
     extraordinaryIncome: ExtraordinaryIncome[];
@@ -123,4 +124,10 @@ export interface FinancialState {
     trips: Trip[];
   };
   months: MonthData[];
+  // Armazena saldos finais de dezembro de cada ano para carregar no ano seguinte
+  yearEndBalances: {
+    [year: number]: {
+      [investmentId: string]: number;
+    };
+  };
 }

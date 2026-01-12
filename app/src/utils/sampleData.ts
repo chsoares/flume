@@ -150,5 +150,7 @@ export function getSampleData(): FinancialState {
       ],
     },
     months: [],
+    availableYears: [year],
+    yearEndBalances: {},
   };
 }

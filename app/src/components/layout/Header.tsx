@@ -1,7 +1,7 @@
 // components/layout/Header.tsx
 
 import { useLocation } from 'react-router-dom';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Plus } from 'lucide-react';
 import { useFinancialStore } from '../../store/financialStore';
 
 const pageTitles: Record<string, string> = {
@@ -14,13 +14,13 @@ const pageTitles: Record<string, string> = {
 
 export function Header() {
   const location = useLocation();
-  const { year, setYear, recalculateAllMonths } = useFinancialStore();
-
-  const currentYear = new Date().getFullYear();
-  const startYear = Math.max(2026, currentYear - 2);
-  const years = Array.from({ length: 5 }, (_, i) => startYear + i);
+  const { year, setYear, recalculateAllMonths, months, availableYears, createNewYear } = useFinancialStore();
 
   const pageTitle = pageTitles[location.pathname] || 'flume';
+
+  // Verificar se todos os meses do ano atual estão concretizados
+  const allMonthsFinalized = months.length === 12 && months.every((m) => m.status === 'finalized');
+  const canCreateNewYear = allMonthsFinalized;
 
   return (
     <header className="bg-white border-b border-slate-200 px-8 py-4">
@@ -31,24 +31,42 @@ export function Header() {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* Year Selector */}
           <select
             value={year}
             onChange={(e) => setYear(parseInt(e.target.value))}
-            className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="h-10 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
           >
-            {years.map((y) => (
+            {availableYears.map((y) => (
               <option key={y} value={y}>
                 {y}
               </option>
             ))}
           </select>
 
+          {/* Add Year Button */}
+          <button
+            onClick={() => canCreateNewYear && createNewYear()}
+            disabled={!canCreateNewYear}
+            className={`h-10 px-3 rounded-lg transition-colors flex items-center justify-center ${
+              canCreateNewYear
+                ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
+                : 'bg-red-600 cursor-not-allowed opacity-75'
+            }`}
+            title={
+              canCreateNewYear
+                ? `Criar ano ${year + 1}`
+                : 'Concretize todos os meses do ano corrente antes de criar um novo ano'
+            }
+          >
+            <Plus className="w-5 h-5 text-white" />
+          </button>
+
           {/* Recalculate Button */}
           <button
             onClick={recalculateAllMonths}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            className="h-10 flex items-center gap-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             title="Recalcular todos os meses"
           >
             <RefreshCw className="w-4 h-4" />

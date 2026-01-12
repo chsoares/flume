@@ -7,7 +7,14 @@ import { differenceInDays, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function TripDashboard() {
-  const { config } = useFinancialStore();
+  const { config, year } = useFinancialStore();
+
+  // Filtrar apenas viagens do ano corrente
+  const currentYearTrips = config.trips.filter((trip) => {
+    const tripStartYear = parseISO(trip.startDate).getFullYear();
+    const tripEndYear = parseISO(trip.endDate).getFullYear();
+    return tripStartYear === year || tripEndYear === year;
+  });
 
   function calculateTripTotal(trip: any): number {
     const days = differenceInDays(parseISO(trip.endDate), parseISO(trip.startDate)) + 1;
@@ -31,9 +38,9 @@ export function TripDashboard() {
         Dashboard de Viagens
       </h3>
 
-      {config.trips.length > 0 ? (
+      {currentYearTrips.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {config.trips.map((trip) => {
+          {currentYearTrips.map((trip) => {
             const days = differenceInDays(parseISO(trip.endDate), parseISO(trip.startDate)) + 1;
             const total = calculateTripTotal(trip);
             const preExpensesTotal = trip.preExpenses.reduce(

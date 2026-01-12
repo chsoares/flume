@@ -21,9 +21,17 @@ export function InvestmentDashboard() {
 
   // Calculate totals for each investment
   const investmentStats = config.investments.map((investment) => {
-    const initialBalance = investment.initialBalance;
-    const currentBalance = firstMonth.investments[investment.id]?.previousBalance || investment.initialBalance;
+    // Saldo inicial do ano é o previousBalance de janeiro (que já vem do ano anterior)
+    const yearInitialBalance = firstMonth.investments[investment.id]?.previousBalance || investment.initialBalance;
+
+    // Saldo atual é o saldo do último mês finalizado, ou o saldo inicial do ano
+    const lastFinalizedMonth = months.filter(m => m.status === 'finalized').slice(-1)[0];
+    const currentBalance = lastFinalizedMonth?.realData?.investments[investment.id]?.finalBalance
+      ?? lastFinalizedMonth?.investments[investment.id]?.finalBalance
+      ?? yearInitialBalance;
+
     const projectedBalance = lastMonth.investments[investment.id]?.finalBalance || 0;
+
     // Rendimento apenas de meses finalizados
     const totalYield = months.reduce((sum, month) => {
       if (month.status === 'finalized' && month.realData?.investments[investment.id]?.yield) {
@@ -34,7 +42,7 @@ export function InvestmentDashboard() {
 
     return {
       ...investment,
-      initialBalance,
+      yearInitialBalance,
       currentBalance,
       projectedBalance,
       totalYield,
@@ -65,8 +73,8 @@ export function InvestmentDashboard() {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Inicial:</span>
-                  <span className="font-medium">{formatCurrency(inv.initialBalance)}</span>
+                  <span className="text-slate-600">Inicial (ano):</span>
+                  <span className="font-medium">{formatCurrency(inv.yearInitialBalance)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Atual:</span>

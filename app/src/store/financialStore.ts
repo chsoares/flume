@@ -18,6 +18,7 @@ import {
   getTripDetailsForMonth,
   getExtraordinaryExpenseDetailsForMonth,
   getExtraordinaryIncomeDetailsForMonth,
+  getSalaryForMonth,
 } from '../utils/calculations';
 import { getSampleData } from '../utils/sampleData';
 
@@ -61,6 +62,10 @@ interface FinancialStore extends FinancialState {
   revertMonth: (monthStr: string) => void;
   updateMonthRealData: (monthStr: string, realData: MonthData['realData']) => void;
 
+  // Year management
+  saveYearEndBalances: (year: number) => void;
+  createNewYear: () => void;
+
   // Recalculations
   recalculateAllMonths: () => void;
 
@@ -72,7 +77,8 @@ interface FinancialStore extends FinancialState {
 }
 
 const createDefaultState = (): FinancialState => ({
-  year: new Date().getFullYear(),
+  year: 2026,
+  availableYears: [2026],
   config: {
     salary: {
       baseValue: 0,
@@ -86,6 +92,7 @@ const createDefaultState = (): FinancialState => ({
     trips: [],
   },
   months: [],
+  yearEndBalances: {},
 });
 
 export const useFinancialStore = create<FinancialStore>((set, get) => ({
@@ -100,6 +107,10 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
   loadFromStorage: () => {
     const loaded = loadFromLocalStorage();
     if (loaded) {
+      // Garantir que availableYears existe (para compatibilidade com dados antigos)
+      if (!loaded.availableYears) {
+        loaded.availableYears = [loaded.year];
+      }
       set(loaded);
     }
   },
@@ -120,6 +131,101 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
     set({ year });
     get().recalculateAllMonths();
     get().persist();
+  },
+
+  createNewYear: () => {
+    const state = get();
+    const newYear = state.year + 1;
+
+    // Verificar se dezembro está finalizado
+    const decemberMonth = state.months.find((m) => m.month === `${state.year}-12`);
+    if (!decemberMonth || decemberMonth.status !== 'finalized') {
+      console.warn('Dezembro não está finalizado. Não é possível criar um novo ano.');
+      return;
+    }
+
+    // Salvar saldos de fim de ano antes de criar novo ano
+    get().saveYearEndBalances(state.year);
+
+    // Consolidar aumentos do ano anterior no salário base
+    const consolidatedSalary = getSalaryForMonth(`${state.year}-12`, state.config.salary);
+
+    // Consolidar aumentos de despesas fixas do ano anterior
+    const consolidatedFixedExpenses = state.config.fixedExpenses.map((expense) => {
+      const sortedIncreases = [...expense.increases].sort((a, b) => a.month.localeCompare(b.month));
+
+      let currentValue = expense.value;
+      for (const increase of sortedIncreases) {
+        if (increase.month <= `${state.year}-12`) {
+          currentValue = increase.value;
+        }
+      }
+
+      // Manter apenas aumentos futuros
+      const futureIncreases = expense.increases.filter(inc => inc.month > `${state.year}-12`);
+
+      return {
+        ...expense,
+        value: currentValue,
+        increases: futureIncreases,
+      };
+    });
+
+    // Filtrar receitas/despesas extraordinárias e viagens para o novo ano
+    const newYearPrefix = `${newYear}-`;
+    const filteredExtraordinaryIncome = state.config.extraordinaryIncome.filter(
+      income => income.month.startsWith(newYearPrefix)
+    );
+
+    // Para despesas extraordinárias, manter as que ainda têm parcelas no novo ano
+    const filteredExtraordinaryExpenses = state.config.extraordinaryExpenses.filter(expense => {
+      const [startYear, startMonth] = expense.startMonth.split('-').map(Number);
+      const startDate = new Date(startYear, startMonth - 1, 1);
+      const endDate = new Date(startYear, startMonth - 1 + expense.installments, 0);
+      const yearStart = new Date(newYear, 0, 1);
+
+      return endDate >= yearStart;
+    });
+
+    set({
+      year: newYear,
+      availableYears: [...state.availableYears, newYear],
+      config: {
+        ...state.config,
+        salary: {
+          baseValue: consolidatedSalary,
+          increases: state.config.salary.increases.filter(inc => inc.month > `${state.year}-12`),
+        },
+        fixedExpenses: consolidatedFixedExpenses,
+        extraordinaryIncome: filteredExtraordinaryIncome,
+        extraordinaryExpenses: filteredExtraordinaryExpenses,
+      },
+    });
+
+    get().recalculateAllMonths();
+    get().persist();
+  },
+
+  saveYearEndBalances: (year) => {
+    const state = get();
+    const decemberMonth = state.months.find((m) => m.month === `${year}-12`);
+
+    if (!decemberMonth) return;
+
+    const balances: { [investmentId: string]: number } = {};
+
+    Object.entries(decemberMonth.investments).forEach(([id, invData]) => {
+      // Usar realData se disponível, senão usar dados projetados
+      const finalBalance = decemberMonth.realData?.investments[id]?.finalBalance ?? invData.finalBalance;
+      balances[id] = finalBalance;
+    });
+
+    set((state) => ({
+      yearEndBalances: {
+        ...state.yearEndBalances,
+        [year]: balances,
+      },
+    }));
   },
 
   updateSalary: (salary) => {
@@ -429,7 +535,11 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
 
   recalculateAllMonths: () => {
     const state = get();
-    const newMonths = generateMonthsForYear(state.year, state.config);
+
+    // Buscar saldos do ano anterior
+    const previousYearBalances = state.yearEndBalances[state.year - 1];
+
+    const newMonths = generateMonthsForYear(state.year, state.config, previousYearBalances);
 
     // Preservar realData dos meses já finalizados
     const preservedMonths = newMonths.map((newMonth) => {
