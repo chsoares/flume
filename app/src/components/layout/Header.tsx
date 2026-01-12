@@ -35,37 +35,6 @@ export function Header() {
 
         {/* Controls */}
         <div className="flex items-center gap-3">
-          {/* Year Selector */}
-          <select
-            value={year}
-            onChange={(e) => setYear(parseInt(e.target.value))}
-            className="h-10 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          >
-            {availableYears.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-
-          {/* Add Year Button */}
-          <button
-            onClick={() => canCreateNewYear && createNewYear()}
-            disabled={!canCreateNewYear}
-            className={`h-10 px-3 rounded-lg transition-colors flex items-center justify-center ${
-              canCreateNewYear
-                ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
-                : 'bg-red-600 cursor-not-allowed opacity-75'
-            }`}
-            title={
-              canCreateNewYear
-                ? `Criar ano ${year + 1}`
-                : 'Concretize todos os meses do ano corrente antes de criar um novo ano'
-            }
-          >
-            <Plus className="w-5 h-5 text-white" />
-          </button>
-
           {/* Sync Status Indicator */}
           {isAuthenticated && (
             <div className="h-10 flex items-center gap-2 px-3 text-sm text-slate-600">
@@ -97,6 +66,37 @@ export function Header() {
               )}
             </div>
           )}
+
+          {/* Year Selector */}
+          <select
+            value={year}
+            onChange={(e) => setYear(parseInt(e.target.value))}
+            className="h-10 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          >
+            {availableYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+
+          {/* Add Year Button */}
+          <button
+            onClick={() => canCreateNewYear && createNewYear()}
+            disabled={!canCreateNewYear}
+            className={`h-10 px-3 rounded-lg transition-colors flex items-center justify-center ${
+              canCreateNewYear
+                ? 'bg-green-600 hover:bg-green-700 cursor-pointer'
+                : 'bg-red-600 cursor-not-allowed opacity-75'
+            }`}
+            title={
+              canCreateNewYear
+                ? `Criar ano ${year + 1}`
+                : 'Concretize todos os meses do ano corrente antes de criar um novo ano'
+            }
+          >
+            <Plus className="w-5 h-5 text-white" />
+          </button>
 
           {/* Recalculate Button */}
           <button
