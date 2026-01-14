@@ -54,6 +54,20 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onNavigate]);
 
+  // Calcular despesas cotidianas automaticamente quando em modo de edição
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const totalIncome = realSalary + realExtraordinaryIncome.reduce((sum, inc) => sum + inc.value, 0);
+    const totalFixed = realFixedExpenses.reduce((sum, exp) => sum + exp.value, 0);
+    const totalExtraordinary = realExtraordinaryExpenses.reduce((sum, exp) => sum + exp.value, 0);
+    const totalTrips = realTrips.reduce((sum, trip) => sum + trip.items.reduce((s, item) => s + item.value, 0), 0);
+    const totalInvestmentDeposits = Object.values(realInvestments).reduce((sum, inv) => sum + inv.deposit, 0);
+
+    const calculatedDaily = totalIncome - totalFixed - totalExtraordinary - totalTrips - totalInvestmentDeposits;
+    setRealDailyExpenses(calculatedDaily);
+  }, [isEditing, realSalary, realExtraordinaryIncome, realFixedExpenses, realExtraordinaryExpenses, realTrips, realInvestments]);
+
   if (!month) return null;
 
   const isFinalized = month.status === 'finalized';
@@ -512,13 +526,13 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
               )}
             </div>
 
-            {/* Cotidianas (NÃO EDITÁVEL) */}
+            {/* Cotidianas (Calculado Automaticamente) */}
             <div className="flex justify-between items-center text-base">
               <span className="text-red-700 font-medium">Cotidianas</span>
               {isEditing ? (
                 <div className="w-40">
                   <CurrencyInput
-                    value={displayDailyExpenses}
+                    value={realDailyExpenses}
                     onChange={() => {}} // Não permite mudanças
                     disabled={true}
                   />
@@ -641,16 +655,6 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                 </div>
               );
             })}
-
-            {/* Saldo Final Total */}
-            <div className="border-t border-purple-300 pt-3">
-              <div className="flex justify-between items-center text-base">
-                <span className="text-purple-700 font-bold">Saldo Final</span>
-                <span className="text-purple-700 font-bold">
-                  {formatCurrency(totalFinalBalance)}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
 
