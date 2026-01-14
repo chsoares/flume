@@ -265,12 +265,6 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
     return sum + (realInvData?.deposit ?? invData.deposit);
   }, 0);
 
-  // Calcular saldo final total de investimentos
-  const totalFinalBalance = Object.entries(month.investments).reduce((sum, [id, invData]) => {
-    const realInvData = month.realData?.investments[id];
-    return sum + (realInvData?.finalBalance ?? invData.finalBalance);
-  }, 0);
-
   return (
     <Modal
       isOpen={isOpen}
