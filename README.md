@@ -34,7 +34,5 @@ flumen/
 │   │   └── utils/          # Helpers e utilitários
 │   ├── package.json
 │   └── vite.config.ts
-├── ORIENTADOR.md          # Documentação orientadora
-├── prototype.html         # Protótipo original
 └── README.md              # Este arquivo
 ```
