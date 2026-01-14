@@ -245,8 +245,14 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
     }
   }
 
-  // Calcular total de investimentos
+  // Calcular total de movimentações de investimentos
   const totalInvestments = Object.entries(month.investments).reduce((sum, [id, invData]) => {
+    const realInvData = month.realData?.investments[id];
+    return sum + (realInvData?.deposit ?? invData.deposit);
+  }, 0);
+
+  // Calcular saldo final total de investimentos
+  const totalFinalBalance = Object.entries(month.investments).reduce((sum, [id, invData]) => {
     const realInvData = month.realData?.investments[id];
     return sum + (realInvData?.finalBalance ?? invData.finalBalance);
   }, 0);
@@ -558,20 +564,23 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                     {isEditing ? (
                       <div className="w-40">
                         <CurrencyInput
-                          value={realInvestments[investmentId]?.finalBalance ?? displayFinalBalance}
+                          value={realInvestments[investmentId]?.deposit ?? displayDeposit}
                           onChange={(value) =>
                             setRealInvestments({
                               ...realInvestments,
                               [investmentId]: {
                                 ...realInvestments[investmentId],
-                                finalBalance: value,
+                                deposit: value,
                               },
                             })
                           }
+                          allowNegative={true}
                         />
                       </div>
                     ) : (
-                      <span className="text-purple-700">{formatCurrency(displayFinalBalance)}</span>
+                      <span className={`text-purple-700 ${displayDeposit >= 0 ? '' : 'text-purple-400'}`}>
+                        {formatCurrency(displayDeposit)}
+                      </span>
                     )}
                   </div>
                   <div className="space-y-1 text-sm ml-4">
@@ -587,30 +596,6 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                         </div>
                       ) : (
                         <span>{formatCurrency(invData.previousBalance)}</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Movimentações</span>
-                      {isEditing ? (
-                        <div className="w-40">
-                          <CurrencyInput
-                            value={realInvestments[investmentId]?.deposit ?? displayDeposit}
-                            onChange={(value) =>
-                              setRealInvestments({
-                                ...realInvestments,
-                                [investmentId]: {
-                                  ...realInvestments[investmentId],
-                                  deposit: value,
-                                },
-                              })
-                            }
-                            allowNegative={true}
-                          />
-                        </div>
-                      ) : (
-                        <span className={displayDeposit >= 0 ? "text-purple-600" : "text-purple-400"}>
-                          {formatCurrency(displayDeposit)}
-                        </span>
                       )}
                     </div>
                     <div className="flex justify-between items-center">
@@ -631,10 +616,41 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                         <span className="text-slate-400 italic">a calcular</span>
                       )}
                     </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Saldo Final</span>
+                      {isEditing ? (
+                        <div className="w-40">
+                          <CurrencyInput
+                            value={realInvestments[investmentId]?.finalBalance ?? displayFinalBalance}
+                            onChange={(value) =>
+                              setRealInvestments({
+                                ...realInvestments,
+                                [investmentId]: {
+                                  ...realInvestments[investmentId],
+                                  finalBalance: value,
+                                },
+                              })
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <span>{formatCurrency(displayFinalBalance)}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })}
+
+            {/* Saldo Final Total */}
+            <div className="border-t border-purple-300 pt-3">
+              <div className="flex justify-between items-center text-base">
+                <span className="text-purple-700 font-bold">Saldo Final</span>
+                <span className="text-purple-700 font-bold">
+                  {formatCurrency(totalFinalBalance)}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
