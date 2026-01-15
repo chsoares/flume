@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
+import { CurrencyInput } from '../shared/CurrencyInput';
 import { Plus, Trash2, AlertTriangle, CheckCircle, Edit, Save, X } from 'lucide-react';
 import { generateUUID } from '../../utils/formatters';
 
@@ -165,11 +166,10 @@ export function InvestmentsList() {
                     />
                   </td>
                   <td className="px-4 py-2">
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={newInitialBalance}
-                      onChange={(e) => setNewInitialBalance(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 border rounded text-sm text-right"
+                      onChange={setNewInitialBalance}
+                      compact
                     />
                   </td>
                   <td className="px-4 py-2">
@@ -228,11 +228,10 @@ export function InvestmentsList() {
                         />
                       </td>
                       <td className="px-4 py-2">
-                        <input
-                          type="number"
+                        <CurrencyInput
                           value={editInitialBalance}
-                          onChange={(e) => setEditInitialBalance(parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 border rounded text-sm text-right"
+                          onChange={setEditInitialBalance}
+                          compact
                         />
                       </td>
                       <td className="px-4 py-2">

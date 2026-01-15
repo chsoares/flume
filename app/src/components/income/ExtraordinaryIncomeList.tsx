@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useFinancialStore } from '../../store/financialStore';
 import { MonthPicker } from '../shared/MonthPicker';
+import { CurrencyInput } from '../shared/CurrencyInput';
 import { formatCurrency } from '../../utils/formatters';
 import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
 import { generateUUID } from '../../utils/formatters';
 
 export function ExtraordinaryIncomeList() {
-  const { config, addExtraordinaryIncome, removeExtraordinaryIncome } =
+  const { config, addExtraordinaryIncome, updateExtraordinaryIncome, removeExtraordinaryIncome } =
     useFinancialStore();
 
   const [isAdding, setIsAdding] = useState(false);
@@ -57,8 +58,7 @@ export function ExtraordinaryIncomeList() {
   function handleSaveEdit() {
     if (!editingId) return;
 
-    addExtraordinaryIncome({
-      id: editingId,
+    updateExtraordinaryIncome(editingId, {
       month: editMonth,
       description: editDescription,
       value: editValue,
@@ -119,11 +119,10 @@ export function ExtraordinaryIncomeList() {
                     />
                   </td>
                   <td className="px-4 py-2">
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={newValue}
-                      onChange={(e) => setNewValue(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 border rounded text-sm text-right"
+                      onChange={setNewValue}
+                      compact
                     />
                   </td>
                   <td className="px-4 py-2 text-center">
@@ -163,11 +162,10 @@ export function ExtraordinaryIncomeList() {
                         />
                       </td>
                       <td className="px-4 py-2">
-                        <input
-                          type="number"
+                        <CurrencyInput
                           value={editValue}
-                          onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 border rounded text-sm text-right"
+                          onChange={setEditValue}
+                          compact
                         />
                       </td>
                       <td className="px-4 py-2 text-center">

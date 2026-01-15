@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useFinancialStore } from '../../store/financialStore';
 import { MonthPicker } from '../shared/MonthPicker';
+import { CurrencyInput } from '../shared/CurrencyInput';
 import { formatCurrency } from '../../utils/formatters';
 import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
 import { generateUUID } from '../../utils/formatters';
 
 export function ExtraordinaryExpensesList() {
-  const { config, addExtraordinaryExpense, removeExtraordinaryExpense } = useFinancialStore();
+  const { config, addExtraordinaryExpense, updateExtraordinaryExpense, removeExtraordinaryExpense } = useFinancialStore();
 
   const [isAdding, setIsAdding] = useState(false);
   const [newDescription, setNewDescription] = useState('');
@@ -62,8 +63,7 @@ export function ExtraordinaryExpensesList() {
   function handleSaveEdit() {
     if (!editingId) return;
 
-    addExtraordinaryExpense({
-      id: editingId,
+    updateExtraordinaryExpense(editingId, {
       description: editDescription,
       startMonth: editStartMonth,
       installments: editInstallments,
@@ -136,11 +136,10 @@ export function ExtraordinaryExpensesList() {
                     />
                   </td>
                   <td className="px-4 py-2">
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={newInstallmentValue}
-                      onChange={(e) => setNewInstallmentValue(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 border rounded text-sm text-right"
+                      onChange={setNewInstallmentValue}
+                      compact
                     />
                   </td>
                   <td className="px-4 py-2 text-right font-bold text-red-600">
@@ -194,11 +193,10 @@ export function ExtraordinaryExpensesList() {
                           />
                         </td>
                         <td className="px-4 py-2">
-                          <input
-                            type="number"
+                          <CurrencyInput
                             value={editInstallmentValue}
-                            onChange={(e) => setEditInstallmentValue(parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-1 border rounded text-sm text-right"
+                            onChange={setEditInstallmentValue}
+                            compact
                           />
                         </td>
                         <td className="px-4 py-2 text-right font-bold text-red-600">

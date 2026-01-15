@@ -256,11 +256,10 @@ export function TripForm({ trip, onClose }: TripFormProps) {
                         />
                       </td>
                       <td className="px-4 py-2">
-                        <input
-                          type="number"
+                        <CurrencyInput
                           value={newExpenseValue}
-                          onChange={(e) => setNewExpenseValue(parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 border rounded text-sm text-right"
+                          onChange={setNewExpenseValue}
+                          compact
                         />
                       </td>
                       <td className="px-4 py-2 text-right font-bold text-blue-600">
@@ -314,11 +313,10 @@ export function TripForm({ trip, onClose }: TripFormProps) {
                               />
                             </td>
                             <td className="px-4 py-2">
-                              <input
-                                type="number"
+                              <CurrencyInput
                                 value={editExpenseValue}
-                                onChange={(e) => setEditExpenseValue(parseFloat(e.target.value) || 0)}
-                                className="w-full px-2 py-1 border rounded text-sm text-right"
+                                onChange={setEditExpenseValue}
+                                compact
                               />
                             </td>
                             <td className="px-4 py-2 text-right font-bold text-blue-600">

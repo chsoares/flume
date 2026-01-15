@@ -10,6 +10,7 @@ interface CurrencyInputProps {
   disabled?: boolean;
   className?: string;
   allowNegative?: boolean;
+  compact?: boolean;
 }
 
 export function CurrencyInput({
@@ -20,6 +21,7 @@ export function CurrencyInput({
   disabled = false,
   className = '',
   allowNegative = false,
+  compact = false,
 }: CurrencyInputProps) {
   const [displayValue, setDisplayValue] = useState('');
 
@@ -58,6 +60,22 @@ export function CurrencyInput({
 
     // Chama o onChange com o valor numérico
     onChange(numValue);
+  }
+
+  if (compact) {
+    return (
+      <div className={`relative ${className}`}>
+        <span className="absolute left-2 top-1 text-slate-400 text-sm">R$</span>
+        <input
+          type="text"
+          value={displayValue}
+          onChange={handleChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="w-full pl-8 pr-2 py-1 border border-slate-300 rounded text-sm text-right focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+        />
+      </div>
+    );
   }
 
   return (

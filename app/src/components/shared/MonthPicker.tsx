@@ -8,18 +8,18 @@ interface MonthPickerProps {
 }
 
 const MONTHS = [
-  { value: '01', label: 'Jan' },
-  { value: '02', label: 'Fev' },
-  { value: '03', label: 'Mar' },
-  { value: '04', label: 'Abr' },
-  { value: '05', label: 'Mai' },
-  { value: '06', label: 'Jun' },
-  { value: '07', label: 'Jul' },
-  { value: '08', label: 'Ago' },
-  { value: '09', label: 'Set' },
-  { value: '10', label: 'Out' },
-  { value: '11', label: 'Nov' },
-  { value: '12', label: 'Dez' },
+  { value: '01', label: '01' },
+  { value: '02', label: '02' },
+  { value: '03', label: '03' },
+  { value: '04', label: '04' },
+  { value: '05', label: '05' },
+  { value: '06', label: '06' },
+  { value: '07', label: '07' },
+  { value: '08', label: '08' },
+  { value: '09', label: '09' },
+  { value: '10', label: '10' },
+  { value: '11', label: '11' },
+  { value: '12', label: '12' },
 ];
 
 export function MonthPicker({
@@ -51,28 +51,29 @@ export function MonthPicker({
           {label}
         </label>
       )}
-      <div className="flex gap-2">
-        <select
-          value={month}
-          onChange={(e) => handleMonthChange(e.target.value)}
-          className="flex-1 px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-        >
-          <option value="">Mês</option>
-          {MONTHS.map((m) => (
-            <option key={m.value} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </select>
+      <div className="flex gap-1 items-center">
         <select
           value={year}
           onChange={(e) => handleYearChange(e.target.value)}
-          className="w-24 px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="px-2 py-1 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
         >
           <option value="">Ano</option>
           {years.map((y) => (
             <option key={y} value={y}>
               {y}
+            </option>
+          ))}
+        </select>
+        <span className="text-slate-400">-</span>
+        <select
+          value={month}
+          onChange={(e) => handleMonthChange(e.target.value)}
+          className="px-2 py-1 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+        >
+          <option value="">Mês</option>
+          {MONTHS.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
             </option>
           ))}
         </select>

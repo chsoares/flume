@@ -5,6 +5,7 @@ import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency, generateUUID } from '../../utils/formatters';
 import { Plus, Trash2, TrendingUp, ChevronDown, ChevronUp, Edit, Save, X } from 'lucide-react';
 import { MonthPicker } from '../shared/MonthPicker';
+import { CurrencyInput } from '../shared/CurrencyInput';
 import type { FixedExpense } from '../../types';
 
 export function FixedExpensesList() {
@@ -153,11 +154,10 @@ export function FixedExpensesList() {
                     />
                   </td>
                   <td className="px-4 py-2">
-                    <input
-                      type="number"
+                    <CurrencyInput
                       value={newValue}
-                      onChange={(e) => setNewValue(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 border rounded text-sm text-right"
+                      onChange={setNewValue}
+                      compact
                     />
                   </td>
                   <td className="px-4 py-2 text-center">
@@ -192,11 +192,10 @@ export function FixedExpensesList() {
                           />
                         </td>
                         <td className="px-4 py-2">
-                          <input
-                            type="number"
+                          <CurrencyInput
                             value={editValue}
-                            onChange={(e) => setEditValue(parseFloat(e.target.value) || 0)}
-                            className="w-full px-2 py-1 border rounded text-sm text-right"
+                            onChange={setEditValue}
+                            compact
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
@@ -310,11 +309,10 @@ export function FixedExpensesList() {
                                         />
                                       </td>
                                       <td className="px-3 py-2">
-                                        <input
-                                          type="number"
+                                        <CurrencyInput
                                           value={newIncreaseValue}
-                                          onChange={(e) => setNewIncreaseValue(parseFloat(e.target.value) || 0)}
-                                          className="w-full px-2 py-1 border rounded text-xs text-right"
+                                          onChange={setNewIncreaseValue}
+                                          compact
                                         />
                                       </td>
                                       <td className="px-3 py-2 text-center">

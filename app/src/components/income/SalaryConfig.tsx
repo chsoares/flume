@@ -5,7 +5,7 @@ import { useFinancialStore } from '../../store/financialStore';
 import { CurrencyInput } from '../shared/CurrencyInput';
 import { MonthPicker } from '../shared/MonthPicker';
 import { formatCurrency } from '../../utils/formatters';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
 
 export function SalaryConfig() {
   const { config, updateSalary } = useFinancialStore();
@@ -13,6 +13,9 @@ export function SalaryConfig() {
   const [isAddingIncrease, setIsAddingIncrease] = useState(false);
   const [newIncreaseMonth, setNewIncreaseMonth] = useState('');
   const [newIncreaseValue, setNewIncreaseValue] = useState(0);
+
+  const [editingMonth, setEditingMonth] = useState<string | null>(null);
+  const [editIncreaseValue, setEditIncreaseValue] = useState(0);
 
   function handleUpdateBase() {
     updateSalary({
@@ -51,6 +54,28 @@ export function SalaryConfig() {
       ...config.salary,
       increases: config.salary.increases.filter((inc) => inc.month !== month),
     });
+  }
+
+  function handleStartEdit(month: string, value: number) {
+    setEditingMonth(month);
+    setEditIncreaseValue(value);
+  }
+
+  function handleSaveEdit() {
+    if (!editingMonth) return;
+
+    updateSalary({
+      ...config.salary,
+      increases: config.salary.increases.map((inc) =>
+        inc.month === editingMonth ? { ...inc, value: editIncreaseValue } : inc
+      ),
+    });
+
+    setEditingMonth(null);
+  }
+
+  function handleCancelEdit() {
+    setEditingMonth(null);
   }
 
   return (
@@ -108,11 +133,10 @@ export function SalaryConfig() {
                       />
                     </td>
                     <td className="px-4 py-2">
-                      <input
-                        type="number"
+                      <CurrencyInput
                         value={newIncreaseValue}
-                        onChange={(e) => setNewIncreaseValue(parseFloat(e.target.value) || 0)}
-                        className="w-full px-2 py-1 border rounded text-sm text-right"
+                        onChange={setNewIncreaseValue}
+                        compact
                       />
                     </td>
                     <td className="px-4 py-2 text-center">
@@ -135,18 +159,57 @@ export function SalaryConfig() {
                 )}
                 {config.salary.increases.map((increase) => (
                   <tr key={increase.month} className="hover:bg-slate-50">
-                    <td className="px-4 py-2 text-center">{increase.month}</td>
-                    <td className="px-4 py-2 text-right font-bold text-green-600">
-                      {formatCurrency(increase.value)}
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      <button
-                        onClick={() => handleRemoveIncrease(increase.month)}
-                        className="p-1 hover:bg-red-100 rounded text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
+                    {editingMonth === increase.month ? (
+                      <>
+                        <td className="px-4 py-2 text-center">{increase.month}</td>
+                        <td className="px-4 py-2">
+                          <CurrencyInput
+                            value={editIncreaseValue}
+                            onChange={setEditIncreaseValue}
+                            compact
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <div className="flex gap-1 justify-center">
+                            <button
+                              onClick={handleSaveEdit}
+                              className="p-1 hover:bg-green-100 rounded text-green-600"
+                            >
+                              <Save className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="p-1 hover:bg-slate-100 rounded text-slate-600"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-4 py-2 text-center">{increase.month}</td>
+                        <td className="px-4 py-2 text-right font-bold text-green-600">
+                          {formatCurrency(increase.value)}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <div className="flex gap-1 justify-center">
+                            <button
+                              onClick={() => handleStartEdit(increase.month, increase.value)}
+                              className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRemoveIncrease(increase.month)}
+                              className="p-1 hover:bg-red-100 rounded text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
