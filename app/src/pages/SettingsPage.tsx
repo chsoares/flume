@@ -245,7 +245,7 @@ export function SettingsPage() {
         <div className="space-y-3">
           <button
             onClick={handleLoadSample}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-blue-700 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
             <FileText className="w-4 h-4" />
             <span>Carregar Exemplo</span>
@@ -253,7 +253,7 @@ export function SettingsPage() {
 
           <button
             onClick={handleExport}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
           >
             <Download className="w-4 h-4" />
             <span>Exportar JSON</span>
@@ -261,7 +261,7 @@ export function SettingsPage() {
 
           <button
             onClick={handleImport}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span>Importar JSON</span>
@@ -269,7 +269,7 @@ export function SettingsPage() {
 
           <button
             onClick={handleReset}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-red-900 hover:bg-red-800 text-white rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Reset</span>

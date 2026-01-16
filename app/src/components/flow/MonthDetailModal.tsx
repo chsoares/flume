@@ -5,7 +5,7 @@ import { Modal } from '../shared/Modal';
 import type { MonthData } from '../../types';
 import { formatCurrency, formatMonthFull } from '../../utils/formatters';
 import { useFinancialStore } from '../../store/financialStore';
-import { Edit, Save, CheckCircle, TrendingUp, TrendingDown, PiggyBank, Undo2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Edit, Save, CheckCircle, DollarSign, CreditCard, PiggyBank, Undo2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTripDetailsForMonth, getExtraordinaryExpenseDetailsForMonth, getExtraordinaryIncomeDetailsForMonth } from '../../utils/calculations';
 import { CurrencyInput } from '../shared/CurrencyInput';
 
@@ -294,30 +294,33 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
       }
       size="lg"
       headerActions={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           {!isFinalized ? (
             <button
               onClick={handleFinalize}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+              title="Concretizar"
             >
               <CheckCircle className="w-4 h-4" />
-              <span>Concretizar</span>
+              <span className="hidden md:inline">Concretizar</span>
             </button>
           ) : (
             <>
               <button
                 onClick={handleRevert}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
+                title="Reverter"
               >
                 <Undo2 className="w-4 h-4" />
-                <span>Reverter</span>
+                <span className="hidden md:inline">Reverter</span>
               </button>
               <button
                 onClick={handleEdit}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+                title={isEditing ? 'Salvar' : 'Editar'}
               >
                 {isEditing ? <Save className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-                <span>{isEditing ? 'Salvar' : 'Editar'}</span>
+                <span className="hidden md:inline">{isEditing ? 'Salvar' : 'Editar'}</span>
               </button>
             </>
           )}
@@ -330,8 +333,8 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-green-700 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              RECEITAS
+              <DollarSign className="w-5 h-5" />
+              <span className="hidden md:inline">RECEITAS</span>
             </h3>
             <span className="text-xl font-bold text-green-700">
               {formatCurrency(totalIncome)}
@@ -392,8 +395,8 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-red-700 flex items-center gap-2">
-              <TrendingDown className="w-5 h-5" />
-              DESPESAS
+              <CreditCard className="w-5 h-5" />
+              <span className="hidden md:inline">DESPESAS</span>
             </h3>
             <span className="text-xl font-bold text-red-700">
               {formatCurrency(totalExpenses)}
@@ -545,7 +548,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-purple-700 flex items-center gap-2">
               <PiggyBank className="w-5 h-5" />
-              INVESTIMENTOS
+              <span className="hidden md:inline">INVESTIMENTOS</span>
             </h3>
             <span className="text-xl font-bold text-purple-700">
               {formatCurrency(totalInvestments)}

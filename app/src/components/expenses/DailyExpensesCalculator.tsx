@@ -31,8 +31,8 @@ export function DailyExpensesCalculator() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-xl font-bold text-slate-800 mb-6 border-b pb-3">
+    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
+      <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-6 border-b pb-3">
         Despesas Cotidianas
       </h3>
 

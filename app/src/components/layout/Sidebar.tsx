@@ -9,11 +9,17 @@ import {
   Plane,
   Waves,
   Settings,
+  X,
 } from 'lucide-react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const { year, months, config } = useFinancialStore();
 
@@ -51,17 +57,40 @@ export function Sidebar() {
     : 0;
 
   return (
-    <aside className="w-64 bg-slate-800 text-white min-h-screen p-6 flex flex-col">
-      {/* Logo */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Waves className="w-6 h-6" />
-          flume
-        </h1>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-50
+          w-full md:w-64 bg-slate-800 text-white min-h-screen p-6 flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
+        {/* Logo with Close Button */}
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Waves className="w-6 h-6" />
+            flume
+          </h1>
+          <button
+            onClick={onClose}
+            className="md:hidden p-1 hover:bg-slate-700 rounded-lg transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2">
+      <nav className="flex-1 space-y-2 mb-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -70,6 +99,7 @@ export function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
+              onClick={onClose}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 isActive
                   ? 'bg-blue-600 text-white'
@@ -107,6 +137,7 @@ export function Sidebar() {
           <p className="text-lg font-bold text-purple-400">{formatCurrency(finalBalance)}</p>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

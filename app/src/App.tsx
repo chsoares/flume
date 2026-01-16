@@ -1,6 +1,6 @@
 // App.tsx
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
@@ -14,6 +14,7 @@ import { useFinancialStore } from './store/financialStore';
 
 function App() {
   const { loadFromStorage, recalculateAllMonths, months } = useFinancialStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,10 +32,10 @@ function App() {
   return (
     <Router basename="/flume">
       <div className="flex h-screen bg-slate-900">
-        <Sidebar />
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header />
-          <main className="flex-1 overflow-auto bg-slate-50 p-8">
+          <Header onMenuClick={() => setIsSidebarOpen(true)} />
+          <main className="flex-1 overflow-auto bg-slate-50 p-4 md:p-8">
             <Routes>
               <Route path="/" element={<FlowPage />} />
               <Route path="/income" element={<IncomePage />} />

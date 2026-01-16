@@ -44,17 +44,17 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', headerAct
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-0 md:p-4 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden`}
+        className={`bg-white md:rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-screen md:max-h-[90vh] overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-200">
+          <h2 className="text-lg md:text-2xl font-bold text-slate-800">{title}</h2>
+          <div className="flex items-center gap-1 md:gap-2">
             {headerActions}
             <button
               onClick={onClose}
@@ -66,7 +66,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', headerAct
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(100vh-72px)] md:max-h-[calc(90vh-80px)]">
           {children}
         </div>
       </div>

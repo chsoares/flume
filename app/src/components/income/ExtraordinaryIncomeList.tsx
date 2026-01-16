@@ -76,9 +76,9 @@ export function ExtraordinaryIncomeList() {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6 border-b pb-3">
-        <h3 className="text-xl font-bold text-slate-800">Receitas Extraordinárias</h3>
+    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-3 gap-3">
+        <h3 className="text-lg md:text-xl font-bold text-slate-800">Receitas Extraordinárias</h3>
         <button
           onClick={() => setIsAdding(!isAdding)}
           className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
@@ -90,8 +90,8 @@ export function ExtraordinaryIncomeList() {
 
       {/* List */}
       {sortedIncomes.length > 0 || isAdding ? (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="border rounded-lg overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[500px] text-sm">
             <thead className="bg-slate-100">
               <tr>
                 <th className="px-4 py-3 text-center text-slate-600">Mês</th>

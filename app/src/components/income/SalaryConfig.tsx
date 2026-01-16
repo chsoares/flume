@@ -79,8 +79,8 @@ export function SalaryConfig() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-xl font-bold text-slate-800 mb-6 border-b pb-3">
+    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
+      <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-6 border-b pb-3">
         Salário Líquido Mensal
       </h3>
 
@@ -114,8 +114,8 @@ export function SalaryConfig() {
         </div>
 
         {config.salary.increases.length > 0 || isAddingIncrease ? (
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="border rounded-lg overflow-hidden overflow-x-auto">
+            <table className="w-full min-w-[400px] text-sm">
               <thead className="bg-slate-100">
                 <tr>
                   <th className="px-4 py-3 text-center text-slate-600">Mês</th>

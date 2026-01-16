@@ -12,6 +12,7 @@ export function FlowPage() {
   const { months, config } = useFinancialStore();
   const [selectedMonth, setSelectedMonth] = useState<MonthData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showOverview, setShowOverview] = useState(false);
 
   function handleMonthClick(month: MonthData) {
     setSelectedMonth(month);
@@ -73,8 +74,17 @@ export function FlowPage() {
 
   return (
     <div className="space-y-6">
+      {/* Toggle Overview Button (mobile only) */}
+      <button
+        onClick={() => setShowOverview(!showOverview)}
+        className="md:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg shadow-md text-slate-700 font-medium"
+      >
+        <span>{showOverview ? 'Esconder Resumo' : 'Mostrar Resumo'}</span>
+        <TrendingUp className="w-5 h-5" />
+      </button>
+
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 ${showOverview ? 'block' : 'hidden md:grid'}`}>
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-slate-600">Saldo Atual</h3>
