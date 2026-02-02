@@ -65,20 +65,49 @@ export function FlowTable({ months, onMonthClick }: FlowTableProps) {
           </thead>
           <tbody className="divide-y divide-slate-200">
             {months.map((month) => {
-              const totalIncome = month.income.salary + month.income.extraordinary;
-              const totalExpenses =
-                month.expenses.fixed +
-                month.expenses.daily +
-                month.expenses.extraordinary +
-                month.expenses.trips;
-              const totalDeposits = Object.values(month.investments).reduce(
-                (sum, inv) => sum + inv.deposit,
-                0
-              );
-              const finalBalance = Object.values(month.investments).reduce(
-                (sum, inv) => sum + inv.finalBalance,
-                0
-              );
+              const isFinalized = month.status === 'finalized' && month.realData;
+
+              // Receitas: usa realData se finalizado
+              const totalIncome = isFinalized
+                ? month.realData!.income.salary +
+                  month.realData!.income.extraordinary.reduce((s, e) => s + e.value, 0)
+                : month.income.salary + month.income.extraordinary;
+
+              // Despesas: usa realData se finalizado
+              const totalExpenses = isFinalized
+                ? month.realData!.expenses.fixed.reduce((s, e) => s + e.value, 0) +
+                  month.realData!.expenses.daily +
+                  month.realData!.expenses.extraordinary.reduce((s, e) => s + e.value, 0) +
+                  month.realData!.expenses.trips.reduce(
+                    (s, t) => s + t.items.reduce((ts, item) => ts + item.value, 0),
+                    0
+                  )
+                : month.expenses.fixed +
+                  month.expenses.daily +
+                  month.expenses.extraordinary +
+                  month.expenses.trips;
+
+              // Movimentações: usa realData se finalizado
+              const totalDeposits = isFinalized
+                ? Object.values(month.realData!.investments).reduce(
+                    (sum, inv) => sum + inv.deposit,
+                    0
+                  )
+                : Object.values(month.investments).reduce(
+                    (sum, inv) => sum + inv.deposit,
+                    0
+                  );
+
+              // Saldo final: usa realData se finalizado (considera rendimentos)
+              const finalBalance = isFinalized
+                ? Object.values(month.realData!.investments).reduce(
+                    (sum, inv) => sum + inv.finalBalance,
+                    0
+                  )
+                : Object.values(month.investments).reduce(
+                    (sum, inv) => sum + inv.finalBalance,
+                    0
+                  );
 
               return (
                 <tr

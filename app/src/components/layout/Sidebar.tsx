@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
+import type { MonthData } from '../../types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -32,22 +33,38 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/settings', label: 'Configurações', icon: Settings },
   ];
 
+  // Helper para calcular receita de um mês (usa realData se finalizado)
+  const getMonthIncome = (m: MonthData): number => {
+    if (m.status === 'finalized' && m.realData) {
+      const extraSum = m.realData.income.extraordinary.reduce((s, e) => s + e.value, 0);
+      return m.realData.income.salary + extraSum;
+    }
+    return m.income.salary + m.income.extraordinary;
+  };
+
+  // Helper para calcular despesas de um mês (usa realData se finalizado)
+  const getMonthExpenses = (m: MonthData): number => {
+    if (m.status === 'finalized' && m.realData) {
+      const fixedSum = m.realData.expenses.fixed.reduce((s, e) => s + e.value, 0);
+      const extraSum = m.realData.expenses.extraordinary.reduce((s, e) => s + e.value, 0);
+      const tripsSum = m.realData.expenses.trips.reduce(
+        (s, t) => s + t.items.reduce((ts, item) => ts + item.value, 0),
+        0
+      );
+      return fixedSum + m.realData.expenses.daily + extraSum + tripsSum;
+    }
+    return m.expenses.fixed + m.expenses.daily + m.expenses.extraordinary + m.expenses.trips;
+  };
+
   // Calcular resumos
-  const totalIncome = months.reduce(
-    (sum, m) => sum + m.income.salary + m.income.extraordinary,
-    0
-  );
-  const totalExpenses = months.reduce(
-    (sum, m) =>
-      sum + m.expenses.fixed + m.expenses.daily + m.expenses.extraordinary + m.expenses.trips,
-    0
-  );
+  const totalIncome = months.reduce((sum, m) => sum + getMonthIncome(m), 0);
+  const totalExpenses = months.reduce((sum, m) => sum + getMonthExpenses(m), 0);
   const yearlyBalance = totalIncome - totalExpenses;
 
   // Saldo atual (último mês finalizado ou saldos iniciais)
   const lastFinalizedMonth = months.filter(m => m.status === 'finalized').slice(-1)[0];
-  const currentBalance = lastFinalizedMonth
-    ? Object.values(lastFinalizedMonth.investments).reduce((sum, inv) => sum + inv.finalBalance, 0)
+  const currentBalance = lastFinalizedMonth?.realData?.investments
+    ? Object.values(lastFinalizedMonth.realData.investments).reduce((sum, inv) => sum + inv.finalBalance, 0)
     : config.investments.reduce((sum, inv) => sum + inv.initialBalance, 0);
 
   // Saldo final (último mês do ano)
