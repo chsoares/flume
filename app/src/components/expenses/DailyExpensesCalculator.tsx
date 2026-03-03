@@ -5,6 +5,7 @@ import { useFinancialStore } from '../../store/financialStore';
 import { CurrencyInput } from '../shared/CurrencyInput';
 import { formatCurrency } from '../../utils/formatters';
 import { recalculateDailyExpenses } from '../../utils/calculations';
+import { ShoppingCart, RefreshCw } from 'lucide-react';
 
 export function DailyExpensesCalculator() {
   const { config, months, updateDailyExpensesEstimate } = useFinancialStore();
@@ -31,12 +32,17 @@ export function DailyExpensesCalculator() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
-      <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-6 border-b pb-3">
-        Despesas Cotidianas
-      </h3>
+    <div className="card p-4 md:p-6">
+      <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+        <div className="icon-badge bg-gradient-to-br from-pink-500 to-rose-500">
+          <ShoppingCart className="w-5 h-5 text-white" />
+        </div>
+        <h3 className="text-lg md:text-xl font-bold text-slate-700">
+          Despesas Cotidianas
+        </h3>
+      </div>
 
-      <div className="mb-6 flex gap-3 items-end">
+      <div className="mb-6 flex flex-col sm:flex-row gap-3 sm:items-end">
         <CurrencyInput
           label="Valor Estimado Mensal"
           value={estimate}
@@ -45,47 +51,48 @@ export function DailyExpensesCalculator() {
         />
         <button
           onClick={handleUpdate}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+          className="btn-danger w-10 h-10"
+          title="Atualizar"
         >
-          Atualizar
+          <RefreshCw className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-slate-700 font-medium mb-3">
+      <div className="card-subtle p-4">
+        <p className="text-sm text-slate-600 font-medium mb-3">
           Recalcular baseado no histórico real:
         </p>
         <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={() => handleRecalculate(3)}
-            className="px-3 py-2 bg-white hover:bg-blue-100 border border-blue-300 rounded-lg text-sm transition-colors"
+            className="btn-secondary px-3 py-2 text-sm"
           >
             Últimos 3 meses
           </button>
           <button
             onClick={() => handleRecalculate(6)}
-            className="px-3 py-2 bg-white hover:bg-blue-100 border border-blue-300 rounded-lg text-sm transition-colors"
+            className="btn-secondary px-3 py-2 text-sm"
           >
             6 meses
           </button>
           <button
             onClick={() => handleRecalculate(12)}
-            className="px-3 py-2 bg-white hover:bg-blue-100 border border-blue-300 rounded-lg text-sm transition-colors"
+            className="btn-secondary px-3 py-2 text-sm"
           >
             12 meses
           </button>
           <button
             onClick={() => handleRecalculate('all')}
-            className="px-3 py-2 bg-white hover:bg-blue-100 border border-blue-300 rounded-lg text-sm transition-colors"
+            className="btn-secondary px-3 py-2 text-sm"
           >
             Todo o histórico
           </button>
         </div>
 
         {calculatedAverage !== null && (
-          <div className="bg-white rounded-lg p-3 border border-blue-300">
-            <p className="text-sm text-green-700 font-medium">
-              Média calculada: <span className="text-lg">{formatCurrency(calculatedAverage)}</span>
+          <div className="bg-white rounded-xl p-4 border border-slate-200">
+            <p className="text-sm text-emerald-600 font-medium">
+              Média calculada: <span className="text-lg font-bold tabular-nums">{formatCurrency(calculatedAverage)}</span>
             </p>
             <p className="text-xs text-slate-500 mt-1">
               Baseado em {monthsCount} mês(es) finalizados

@@ -6,7 +6,7 @@ import type { MonthData } from '../types';
 import { FlowTable } from '../components/flow/FlowTable';
 import { MonthDetailModal } from '../components/flow/MonthDetailModal';
 import { formatCurrency } from '../utils/formatters';
-import { TrendingUp, Wallet, PiggyBank, Landmark } from 'lucide-react';
+import { TrendingUp, Wallet, PiggyBank, Landmark, ChevronDown, ChevronUp } from 'lucide-react';
 
 export function FlowPage() {
   const { months, config } = useFinancialStore();
@@ -88,66 +88,88 @@ export function FlowPage() {
     return sum;
   }, 0);
 
+  const summaryCards = [
+    {
+      title: 'Saldo Atual',
+      value: currentBalance,
+      icon: Landmark,
+      textColor: 'text-blue-500',
+      gradientFrom: 'from-blue-500',
+      gradientTo: 'to-cyan-500',
+    },
+    {
+      title: 'Crescimento Anual',
+      value: yearlyBalance,
+      icon: TrendingUp,
+      textColor: yearlyBalance >= 0 ? 'text-emerald-500' : 'text-rose-500',
+      gradientFrom: yearlyBalance >= 0 ? 'from-emerald-500' : 'from-pink-500',
+      gradientTo: yearlyBalance >= 0 ? 'to-teal-500' : 'to-rose-500',
+    },
+    {
+      title: 'Rendimentos',
+      value: totalYield,
+      icon: PiggyBank,
+      textColor: totalYield >= 0 ? 'text-emerald-500' : 'text-rose-500',
+      gradientFrom: totalYield >= 0 ? 'from-emerald-500' : 'from-pink-500',
+      gradientTo: totalYield >= 0 ? 'to-cyan-500' : 'to-rose-500',
+    },
+    {
+      title: 'Saldo Final',
+      value: finalBalance,
+      icon: Wallet,
+      textColor: 'text-violet-500',
+      gradientFrom: 'from-violet-500',
+      gradientTo: 'to-indigo-500',
+    },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full md:h-[calc(100vh-3rem)] gap-4">
       {/* Toggle Overview Button (mobile only) */}
       <button
         onClick={() => setShowOverview(!showOverview)}
-        className="md:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg shadow-md text-slate-700 font-medium"
+        className="md:hidden w-full flex items-center justify-between px-5 py-4
+                 card text-slate-700 font-medium shrink-0"
       >
         <span>{showOverview ? 'Esconder Resumo' : 'Mostrar Resumo'}</span>
-        <TrendingUp className="w-5 h-5" />
+        {showOverview ? (
+          <ChevronUp className="w-5 h-5 text-slate-400" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-slate-400" />
+        )}
       </button>
 
       {/* Summary Cards */}
-      <div className={`grid grid-cols-1 md:grid-cols-4 gap-6 ${showOverview ? 'block' : 'hidden md:grid'}`}>
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-slate-600">Saldo Atual</h3>
-            <Landmark className="w-6 h-6 text-blue-500" />
-          </div>
-          <p className="text-3xl font-bold text-blue-600">
-            {formatCurrency(currentBalance)}
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-slate-600">Saldo Anual</h3>
-            <TrendingUp className="w-6 h-6 text-green-500" />
-          </div>
-          <p
-            className={`text-3xl font-bold ${
-              yearlyBalance >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}
-          >
-            {formatCurrency(yearlyBalance)}
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-slate-600">Saldo Final</h3>
-            <Wallet className="w-6 h-6 text-purple-500" />
-          </div>
-          <p className="text-3xl font-bold text-purple-600">
-            {formatCurrency(finalBalance)}
-          </p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-500">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-slate-600">Rendimentos Totais</h3>
-            <PiggyBank className="w-6 h-6 text-emerald-500" />
-          </div>
-          <p className="text-3xl font-bold text-emerald-600">
-            {formatCurrency(totalYield)}
-          </p>
-        </div>
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0 ${showOverview ? 'block' : 'hidden md:grid'}`}>
+        {summaryCards.map((card, index) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.title}
+              className="group card card-hover p-5 animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-slate-500">{card.title}</h3>
+                <div className="relative">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} rounded-xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-200`} />
+                  <div className={`relative p-2.5 rounded-xl bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} group-hover:scale-105 transition-transform duration-200`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+              </div>
+              <p className={`text-2xl md:text-3xl font-bold ${card.textColor} tracking-tight tabular-nums`}>
+                {formatCurrency(card.value)}
+              </p>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Flow Table */}
-      <FlowTable months={months} onMonthClick={handleMonthClick} />
+      {/* Flow Table - fills remaining space */}
+      <div className="flex-1 min-h-0">
+        <FlowTable months={months} onMonthClick={handleMonthClick} />
+      </div>
 
       {/* Month Detail Modal */}
       <MonthDetailModal

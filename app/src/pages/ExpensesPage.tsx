@@ -7,9 +7,15 @@ import { ExtraordinaryExpensesList } from '../components/expenses/ExtraordinaryE
 export function ExpensesPage() {
   return (
     <div className="space-y-6">
-      <DailyExpensesCalculator />
-      <FixedExpensesList />
-      <ExtraordinaryExpensesList />
+      <div className="animate-fade-in-up" style={{ animationDelay: '0s' }}>
+        <DailyExpensesCalculator />
+      </div>
+      <div className="animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
+        <FixedExpensesList />
+      </div>
+      <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <ExtraordinaryExpensesList />
+      </div>
     </div>
   );
 }

@@ -274,53 +274,50 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
           {onNavigate && (
             <button
               onClick={() => onNavigate('prev')}
-              className="p-1 hover:bg-slate-100 rounded transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               title="Mês anterior (←)"
             >
-              <ChevronLeft className="w-5 h-5 text-slate-600" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <span>{formatMonthFull(month.month)}</span>
+          <span className="gradient-text font-bold">{formatMonthFull(month.month)}</span>
           {onNavigate && (
             <button
               onClick={() => onNavigate('next')}
-              className="p-1 hover:bg-slate-100 rounded transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               title="Próximo mês (→)"
             >
-              <ChevronRight className="w-5 h-5 text-slate-600" />
+              <ChevronRight className="w-5 h-5" />
             </button>
           )}
         </div>
       }
       size="lg"
       headerActions={
-        <div className="flex items-center gap-1 md:gap-2">
+        <div className="flex items-center gap-2">
           {!isFinalized ? (
             <button
               onClick={handleFinalize}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+              className="btn-accent w-10 h-10"
               title="Concretizar"
             >
-              <CheckCircle className="w-4 h-4" />
-              <span className="hidden md:inline">Concretizar</span>
+              <CheckCircle className="w-5 h-5" />
             </button>
           ) : (
             <>
               <button
                 onClick={handleRevert}
-                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
+                className="btn-secondary w-10 h-10"
                 title="Reverter"
               >
-                <Undo2 className="w-4 h-4" />
-                <span className="hidden md:inline">Reverter</span>
+                <Undo2 className="w-5 h-5" />
               </button>
               <button
                 onClick={handleEdit}
-                className="flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+                className="btn-primary w-10 h-10"
                 title={isEditing ? 'Salvar' : 'Editar'}
               >
-                {isEditing ? <Save className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-                <span className="hidden md:inline">{isEditing ? 'Salvar' : 'Editar'}</span>
+                {isEditing ? <Save className="w-5 h-5" /> : <Edit className="w-5 h-5" />}
               </button>
             </>
           )}
@@ -330,19 +327,21 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
       <div className="space-y-6">
 
         {/* Receitas */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="card-subtle p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-green-700 flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
+            <h3 className="text-lg font-bold text-emerald-500 flex items-center gap-3">
+              <div className="icon-badge bg-gradient-to-br from-emerald-500 to-teal-500">
+                <DollarSign className="w-5 h-5 text-white" />
+              </div>
               <span className="hidden md:inline">RECEITAS</span>
             </h3>
-            <span className="text-xl font-bold text-green-700">
+            <span className="text-xl font-bold text-emerald-500 tabular-nums">
               {formatCurrency(totalIncome)}
             </span>
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center text-base">
-              <span className="text-green-700 font-medium">Salário</span>
+              <span className="text-slate-600 font-medium">Salário</span>
               {isEditing ? (
                 <div className="w-40">
                   <CurrencyInput
@@ -351,13 +350,13 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                   />
                 </div>
               ) : (
-                <span className="text-green-700">{formatCurrency(displayIncomeSalary)}</span>
+                <span className="text-slate-700 tabular-nums">{formatCurrency(displayIncomeSalary)}</span>
               )}
             </div>
             <div>
               <div className="flex justify-between mb-1 text-base">
-                <p className="text-green-700 font-medium">Extraordinárias</p>
-                <span className="text-green-700">{formatCurrency(totalExtraordinaryIncome)}</span>
+                <p className="text-slate-600 font-medium">Extraordinárias</p>
+                <span className="text-slate-700 tabular-nums">{formatCurrency(totalExtraordinaryIncome)}</span>
               </div>
               {displayExtraordinaryIncome.length > 0 && (
                 <div className="text-sm space-y-1">
@@ -381,7 +380,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                     displayExtraordinaryIncome.map((income) => (
                       <div key={income.id} className="flex justify-between ml-4">
                         <span className="text-slate-500">{income.description}</span>
-                        <span>{formatCurrency(income.value)}</span>
+                        <span className="text-slate-500 tabular-nums">{formatCurrency(income.value)}</span>
                       </div>
                     ))
                   )}
@@ -392,13 +391,15 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
         </div>
 
         {/* Despesas */}
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="card-subtle p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-red-700 flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
+            <h3 className="text-lg font-bold text-rose-500 flex items-center gap-3">
+              <div className="icon-badge bg-gradient-to-br from-pink-500 to-rose-500">
+                <CreditCard className="w-5 h-5 text-white" />
+              </div>
               <span className="hidden md:inline">DESPESAS</span>
             </h3>
-            <span className="text-xl font-bold text-red-700">
+            <span className="text-xl font-bold text-rose-500 tabular-nums">
               {formatCurrency(totalExpenses)}
             </span>
           </div>
@@ -406,8 +407,8 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
             {/* Fixas */}
             <div>
               <div className="flex justify-between mb-1 text-base">
-                <p className="text-red-700 font-medium">Fixas</p>
-                <span className="text-red-700">{formatCurrency(totalFixedExpenses)}</span>
+                <p className="text-slate-600 font-medium">Fixas</p>
+                <span className="text-slate-700 tabular-nums">{formatCurrency(totalFixedExpenses)}</span>
               </div>
               {displayFixedExpenses.length > 0 && (
                 <div className="text-sm space-y-1">
@@ -431,7 +432,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                     displayFixedExpenses.map((expense) => (
                       <div key={expense.id} className="flex justify-between ml-4">
                         <span className="text-slate-500">{expense.name}</span>
-                        <span>{formatCurrency(expense.value)}</span>
+                        <span className="text-slate-500 tabular-nums">{formatCurrency(expense.value)}</span>
                       </div>
                     ))
                   )}
@@ -442,8 +443,8 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
             {/* Extraordinárias */}
             <div>
               <div className="flex justify-between mb-1 text-base">
-                <p className="text-red-700 font-medium">Extraordinárias</p>
-                <span className="text-red-700">{formatCurrency(totalExtraordinaryExpenses)}</span>
+                <p className="text-slate-600 font-medium">Extraordinárias</p>
+                <span className="text-slate-700 tabular-nums">{formatCurrency(totalExtraordinaryExpenses)}</span>
               </div>
               {displayExtraordinaryExpenses.length > 0 && (
                 <div className="text-sm space-y-1">
@@ -467,7 +468,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                     displayExtraordinaryExpenses.map((expense) => (
                       <div key={expense.id} className="flex justify-between ml-4">
                         <span className="text-slate-500">{expense.description}</span>
-                        <span>{formatCurrency(expense.value)}</span>
+                        <span className="text-slate-500 tabular-nums">{formatCurrency(expense.value)}</span>
                       </div>
                     ))
                   )}
@@ -478,15 +479,15 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
             {/* Viagens */}
             <div>
               <div className="flex justify-between mb-1 text-base">
-                <p className="text-red-700 font-medium">Viagens</p>
-                <span className="text-red-700">{formatCurrency(totalTripsExpenses)}</span>
+                <p className="text-slate-600 font-medium">Viagens</p>
+                <span className="text-slate-700 tabular-nums">{formatCurrency(totalTripsExpenses)}</span>
               </div>
               {displayTrips.length > 0 && (
                 <div className="text-sm">
                   {isEditing ? (
                     realTrips.map((trip, tripIndex) => (
                       <div key={trip.id} className="ml-4 space-y-1">
-                        <p className="text-slate-700">{trip.name}</p>
+                        <p className="text-slate-500">{trip.name}</p>
                         {trip.items.map((item, itemIndex) => (
                           <div key={itemIndex} className="flex justify-between ml-4 items-center">
                             <span className="text-slate-500">{item.description}</span>
@@ -509,11 +510,11 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                   ) : (
                     displayTrips.map((trip) => (
                       <div key={trip.id} className="ml-4 space-y-1">
-                        <p className="text-slate-700">{trip.name}</p>
+                        <p className="text-slate-500">{trip.name}</p>
                         {trip.items.map((item, index) => (
                           <div key={index} className="flex justify-between ml-4">
                             <span className="text-slate-500">{item.description}</span>
-                            <span>{formatCurrency(item.value)}</span>
+                            <span className="text-slate-500 tabular-nums">{formatCurrency(item.value)}</span>
                           </div>
                         ))}
                       </div>
@@ -525,7 +526,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
 
             {/* Cotidianas (Calculado Automaticamente) */}
             <div className="flex justify-between items-center text-base">
-              <span className="text-red-700 font-medium">Cotidianas</span>
+              <span className="text-slate-600 font-medium">Cotidianas</span>
               {isEditing ? (
                 <div className="w-40">
                   <CurrencyInput
@@ -535,7 +536,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                   />
                 </div>
               ) : (
-                <span className="text-red-700">
+                <span className="text-slate-700 tabular-nums">
                   {formatCurrency(displayDailyExpenses)}
                 </span>
               )}
@@ -544,13 +545,15 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
         </div>
 
         {/* Investimentos */}
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div className="card-subtle p-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-purple-700 flex items-center gap-2">
-              <PiggyBank className="w-5 h-5" />
+            <h3 className="text-lg font-bold text-violet-500 flex items-center gap-3">
+              <div className="icon-badge bg-gradient-to-br from-violet-500 to-indigo-500">
+                <PiggyBank className="w-5 h-5 text-white" />
+              </div>
               <span className="hidden md:inline">INVESTIMENTOS</span>
             </h3>
-            <span className="text-xl font-bold text-purple-700">
+            <span className="text-xl font-bold text-violet-500 tabular-nums">
               {formatCurrency(totalInvestments)}
             </span>
           </div>
@@ -571,7 +574,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
               return (
                 <div key={investmentId}>
                   <div className="flex justify-between items-center mb-1 text-base">
-                    <p className="text-purple-700 font-medium">{investment.name}</p>
+                    <p className="text-slate-600 font-medium">{investment.name}</p>
                     {isEditing ? (
                       <div className="w-40">
                         <CurrencyInput
@@ -589,14 +592,14 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                         />
                       </div>
                     ) : (
-                      <span className={`text-purple-700 ${displayDeposit >= 0 ? '' : 'text-purple-400'}`}>
+                      <span className={`tabular-nums ${displayDeposit >= 0 ? 'text-slate-700' : 'text-slate-500'}`}>
                         {formatCurrency(displayDeposit)}
                       </span>
                     )}
                   </div>
                   <div className="space-y-1 text-sm ml-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Saldo Anterior</span>
+                      <span className="text-slate-500">Saldo Anterior</span>
                       {isEditing ? (
                         <div className="w-40">
                           <CurrencyInput
@@ -606,11 +609,11 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                           />
                         </div>
                       ) : (
-                        <span>{formatCurrency(invData.previousBalance)}</span>
+                        <span className="text-slate-500 tabular-nums">{formatCurrency(invData.previousBalance)}</span>
                       )}
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Rendimento</span>
+                      <span className="text-slate-500">Rendimento</span>
                       {isEditing ? (
                         <div className="w-40">
                           <CurrencyInput
@@ -620,15 +623,15 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                           />
                         </div>
                       ) : isFinalized ? (
-                        <span className="text-slate-800">
+                        <span className="text-slate-500 tabular-nums">
                           {formatCurrency(calculatedYield)}
                         </span>
                       ) : (
-                        <span className="text-slate-400 italic">a calcular</span>
+                        <span className="text-slate-500 italic">a calcular</span>
                       )}
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Saldo Final</span>
+                      <span className="text-slate-500">Saldo Final</span>
                       {isEditing ? (
                         <div className="w-40">
                           <CurrencyInput
@@ -645,7 +648,7 @@ export function MonthDetailModal({ isOpen, onClose, month: monthProp, onNavigate
                           />
                         </div>
                       ) : (
-                        <span>{formatCurrency(displayFinalBalance)}</span>
+                        <span className="text-slate-500 tabular-nums">{formatCurrency(displayFinalBalance)}</span>
                       )}
                     </div>
                   </div>

@@ -15,6 +15,12 @@
     padding-right: env(safe-area-inset-right);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: #cbd5e1;
+    color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
   }
 
   /* Remove setas dos inputs numéricos */
@@ -26,5 +32,406 @@
 
   input[type="number"] {
     -moz-appearance: textfield;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: rgba(244, 114, 182, 0.3);
+    color: #1e293b;
+  }
+}
+
+@layer components {
+  /* Sidebar style */
+  .sidebar {
+    background: #1e293b;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Card style - for summary/highlight cards */
+  .card {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Card content - for main content areas (tables, forms) */
+  .card-content {
+    background: #f8fafc;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  /* Card subtle - for nested elements */
+  .card-subtle {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    transition: all 0.2s ease-out;
+  }
+
+  .card-hover:hover {
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #ec4899, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Primary button - pink to rose gradient */
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ec4899, #f43f5e, #ec4899);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    color: white;
+    border: none;
+    border-radius: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35);
+  }
+
+  .btn-primary:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.5);
+  }
+
+  /* Success button - emerald to teal gradient (income) */
+  .btn-success {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #10b981, #14b8a6, #10b981);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    color: white;
+    border: none;
+    border-radius: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  }
+
+  .btn-success:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+  }
+
+  /* Danger button - pink to rose gradient (expenses) - same as badge */
+  .btn-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ec4899, #f43f5e, #ec4899);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    color: white;
+    border: none;
+    border-radius: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35);
+  }
+
+  .btn-danger:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.5);
+  }
+
+  /* Purple button - violet to indigo gradient (investments) */
+  .btn-purple {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    color: white;
+    border: none;
+    border-radius: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+  }
+
+  .btn-purple:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5);
+  }
+
+  /* Accent button - blue to cyan gradient (trips) */
+  .btn-accent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4, #3b82f6);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+    color: white;
+    border: none;
+    border-radius: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+  }
+
+  .btn-accent:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Secondary button - neutral */
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    border-radius: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Icon badge with hover effect */
+  .icon-badge {
+    padding: 0.625rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+
+  .icon-badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Input style */
+  .input-field {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+
+  .input-field::placeholder {
+    color: #94a3b8;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: #f472b6;
+    box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.15);
+  }
+
+  /* Select style */
+  .select-field {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .select-field:focus {
+    outline: none;
+    border-color: #f472b6;
+    box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.15);
+  }
+
+  /* Action button - square icon button */
+  .btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.625rem;
+    transition: all 0.2s ease-out;
+  }
+
+  .btn-action:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Status colors */
+  .text-income {
+    color: #10b981;
+  }
+
+  .text-expense {
+    color: #f43f5e;
+  }
+
+  .text-pink {
+    color: #ec4899;
+  }
+
+  .text-blue {
+    color: #3b82f6;
+  }
+
+  .text-purple {
+    color: #8b5cf6;
+  }
+
+  .text-muted {
+    color: #64748b;
+  }
+
+  /* Sidebar elements */
+  .sidebar-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+  }
+
+  .sidebar-card-hover {
+    transition: all 0.2s ease-out;
+  }
+
+  .sidebar-card-hover:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+@layer utilities {
+  /* Animation delays for stagger effect */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+  .stagger-6 { animation-delay: 0.3s; }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Fade in up animation */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Scale in animation */
+  .animate-scale-in {
+    animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Slide in from left */
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Slide in from right */
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Number transitions */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }

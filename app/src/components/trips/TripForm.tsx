@@ -37,16 +37,13 @@ export function TripForm({ trip, onClose }: TripFormProps) {
   const [editExpenseValue, setEditExpenseValue] = useState(0);
 
   useEffect(() => {
-    console.log('TripForm useEffect triggered, trip:', trip);
     if (trip) {
-      console.log('Setting trip data:', trip);
       setName(trip.name);
       setStartDate(trip.startDate);
       setEndDate(trip.endDate);
       setDailyBudget(trip.dailyBudget);
       setPreExpenses(trip.preExpenses);
     } else {
-      console.log('Resetting form (no trip)');
       setName('');
       setStartDate('');
       setEndDate('');
@@ -150,7 +147,7 @@ export function TripForm({ trip, onClose }: TripFormProps) {
   const sortedExpenses = [...preExpenses].sort((a, b) => a.month.localeCompare(b.month));
 
   return (
-    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+    <div className="mb-6 card-subtle p-4">
       <div className="space-y-4">
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -162,7 +159,7 @@ export function TripForm({ trip, onClose }: TripFormProps) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="input-field w-full h-10 px-3"
               placeholder="Ex: Londres"
             />
           </div>
@@ -173,11 +170,8 @@ export function TripForm({ trip, onClose }: TripFormProps) {
             <input
               type="date"
               value={startDate}
-              onChange={(e) => {
-                console.log('Start date changed:', e.target.value);
-                setStartDate(e.target.value);
-              }}
-              className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              onChange={(e) => setStartDate(e.target.value)}
+              className="input-field w-full h-10 px-3"
             />
           </div>
           <div>
@@ -187,11 +181,8 @@ export function TripForm({ trip, onClose }: TripFormProps) {
             <input
               type="date"
               value={endDate}
-              onChange={(e) => {
-                console.log('End date changed:', e.target.value);
-                setEndDate(e.target.value);
-              }}
-              className="w-full px-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              onChange={(e) => setEndDate(e.target.value)}
+              className="input-field w-full h-10 px-3"
             />
           </div>
           <CurrencyInput
@@ -204,80 +195,82 @@ export function TripForm({ trip, onClose }: TripFormProps) {
         {/* Expenses Section */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-slate-700">Gastos</h4>
+            <h4 className="font-semibold text-slate-600">Gastos</h4>
             <button
               onClick={() => setIsAddingExpense(!isAddingExpense)}
-              className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+              className="btn-accent w-8 h-8"
+              title="Adicionar gasto"
             >
               <Plus className="w-4 h-4" />
-              <span>Adicionar</span>
             </button>
           </div>
 
           {/* Expenses List */}
           {sortedExpenses.length > 0 || isAddingExpense ? (
-            <div className="border rounded-lg overflow-hidden mb-4">
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-4">
               <table className="w-full text-sm">
-                <thead className="bg-slate-100">
-                  <tr>
-                    <th className="px-4 py-3 text-center text-slate-600">Mês</th>
-                    <th className="px-4 py-3 text-left text-slate-600">Descrição</th>
-                    <th className="px-4 py-3 text-center text-slate-600">Parcelas</th>
-                    <th className="px-4 py-3 text-right text-slate-600">Valor Parcela</th>
-                    <th className="px-4 py-3 text-right text-slate-600">Total</th>
-                    <th className="px-4 py-3 text-center text-slate-600">Ações</th>
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-100/50">
+                    <th className="w-28 px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Mês</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Descrição</th>
+                    <th className="w-24 px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Parcelas</th>
+                    <th className="w-32 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Valor Parcela</th>
+                    <th className="w-32 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Total</th>
+                    <th className="w-28 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-slate-100">
                   {isAddingExpense && (
-                    <tr className="bg-blue-50">
-                      <td className="px-4 py-2">
+                    <tr className="bg-blue-50/50">
+                      <td className="px-4 py-3">
                         <MonthPicker
                           value={newExpenseMonth}
                           onChange={setNewExpenseMonth}
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <input
                           type="text"
                           value={newExpenseDescription}
                           onChange={(e) => setNewExpenseDescription(e.target.value)}
-                          className="w-full px-2 py-1 border rounded text-sm"
+                          className="input-field w-full h-10 px-3 text-sm"
                           placeholder="Descrição"
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           min="1"
                           value={newExpenseInstallments}
                           onChange={(e) => setNewExpenseInstallments(parseInt(e.target.value) || 1)}
-                          className="w-full px-2 py-1 border rounded text-sm text-center"
+                          className="input-field w-full h-10 px-3 text-sm text-center"
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <CurrencyInput
                           value={newExpenseValue}
                           onChange={setNewExpenseValue}
                           compact
                         />
                       </td>
-                      <td className="px-4 py-2 text-right font-bold text-blue-600">
+                      <td className="px-4 py-3 text-right font-semibold text-blue-500 tabular-nums">
                         {formatCurrency(newExpenseInstallments * newExpenseValue)}
                       </td>
-                      <td className="px-4 py-2 text-center">
-                        <div className="flex gap-1 justify-center">
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 justify-end">
                           <button
                             onClick={handleAddExpense}
-                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"
+                            className="btn-accent w-9 h-9"
+                            title="Confirmar"
                           >
-                            Adicionar
+                            <Save className="w-4 h-4" />
                           </button>
                           <button
                             onClick={handleCancelExpense}
-                            className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs"
+                            className="btn-action"
+                            title="Cancelar"
                           >
-                            Cancelar
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -286,53 +279,55 @@ export function TripForm({ trip, onClose }: TripFormProps) {
                   {sortedExpenses.map((expense) => {
                     const total = expense.installments * expense.installmentValue;
                     return (
-                      <tr key={expense.id} className="hover:bg-slate-50">
+                      <tr key={expense.id} className="hover:bg-slate-50 transition-colors">
                         {editingExpenseId === expense.id ? (
                           <>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-3">
                               <MonthPicker
                                 value={editExpenseMonth}
                                 onChange={setEditExpenseMonth}
                               />
                             </td>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-3">
                               <input
                                 type="text"
                                 value={editExpenseDescription}
                                 onChange={(e) => setEditExpenseDescription(e.target.value)}
-                                className="w-full px-2 py-1 border rounded text-sm"
+                                className="input-field w-full h-10 px-3 text-sm"
                               />
                             </td>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-3">
                               <input
                                 type="number"
                                 min="1"
                                 value={editExpenseInstallments}
                                 onChange={(e) => setEditExpenseInstallments(parseInt(e.target.value) || 1)}
-                                className="w-full px-2 py-1 border rounded text-sm text-center"
+                                className="input-field w-full h-10 px-3 text-sm text-center"
                               />
                             </td>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-3">
                               <CurrencyInput
                                 value={editExpenseValue}
                                 onChange={setEditExpenseValue}
                                 compact
                               />
                             </td>
-                            <td className="px-4 py-2 text-right font-bold text-blue-600">
+                            <td className="px-4 py-3 text-right font-semibold text-blue-500 tabular-nums">
                               {formatCurrency(editExpenseInstallments * editExpenseValue)}
                             </td>
-                            <td className="px-4 py-2 text-center">
-                              <div className="flex gap-1 justify-center">
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1 justify-end">
                                 <button
                                   onClick={handleSaveEditExpense}
-                                  className="p-1 hover:bg-green-100 rounded text-green-600"
+                                  className="btn-action text-emerald-600"
+                                  title="Salvar"
                                 >
                                   <Save className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={handleCancelEditExpense}
-                                  className="p-1 hover:bg-slate-100 rounded text-slate-600"
+                                  className="btn-action"
+                                  title="Cancelar"
                                 >
                                   <X className="w-4 h-4" />
                                 </button>
@@ -341,26 +336,28 @@ export function TripForm({ trip, onClose }: TripFormProps) {
                           </>
                         ) : (
                           <>
-                            <td className="px-4 py-2 text-center">{expense.month}</td>
-                            <td className="px-4 py-2 font-medium">{expense.description}</td>
-                            <td className="px-4 py-2 text-center">{expense.installments}x</td>
-                            <td className="px-4 py-2 text-right font-medium text-orange-600">
+                            <td className="px-4 py-3 text-slate-600">{expense.month}</td>
+                            <td className="px-4 py-3 font-medium text-slate-700">{expense.description}</td>
+                            <td className="px-4 py-3 text-center text-slate-600">{expense.installments}x</td>
+                            <td className="px-4 py-3 text-right font-medium text-orange-500 tabular-nums">
                               {formatCurrency(expense.installmentValue)}
                             </td>
-                            <td className="px-4 py-2 text-right font-bold text-blue-600">
+                            <td className="px-4 py-3 text-right font-semibold text-blue-500 tabular-nums">
                               {formatCurrency(total)}
                             </td>
-                            <td className="px-4 py-2 text-center">
-                              <div className="flex gap-1 justify-center">
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1 justify-end">
                                 <button
                                   onClick={() => handleStartEditExpense(expense)}
-                                  className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                                  className="btn-action text-blue-500"
+                                  title="Editar"
                                 >
                                   <Edit className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleRemovePreExpense(expense.id)}
-                                  className="p-1 hover:bg-red-100 rounded text-red-600"
+                                  className="btn-action text-rose-500"
+                                  title="Remover"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -375,26 +372,27 @@ export function TripForm({ trip, onClose }: TripFormProps) {
               </table>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 italic text-center py-4 mb-4">
+            <p className="text-sm text-slate-400 italic text-center py-4 mb-4">
               Nenhum gasto adicionado
             </p>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+            className="btn-accent w-10 h-10"
+            title="Salvar Viagem"
           >
-            <Save className="w-4 h-4" />
-            <span>Salvar Viagem</span>
+            <Save className="w-5 h-5" />
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors text-sm"
+            className="btn-action"
+            title="Cancelar"
           >
-            Cancelar
+            <X className="w-5 h-5" />
           </button>
         </div>
       </div>

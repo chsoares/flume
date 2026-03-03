@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
 import { CurrencyInput } from '../shared/CurrencyInput';
-import { Plus, Trash2, AlertTriangle, CheckCircle, Edit, Save, X } from 'lucide-react';
+import { Plus, Trash2, AlertTriangle, CheckCircle, Edit, Save, X, Settings } from 'lucide-react';
 import { generateUUID } from '../../utils/formatters';
 
 export function InvestmentsList() {
@@ -90,23 +90,28 @@ export function InvestmentsList() {
   const allocationValid = Math.abs(totalAllocation - 100) < 0.01;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-3 gap-3">
-        <h3 className="text-lg md:text-xl font-bold text-slate-800">Configuração de Investimentos</h3>
+    <div className="card p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-3 border-b border-slate-100 gap-3">
+        <div className="flex items-center gap-3">
+          <div className="icon-badge bg-gradient-to-br from-violet-500 to-indigo-500">
+            <Settings className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="text-lg md:text-xl font-bold text-slate-700">Configuração de Investimentos</h3>
+        </div>
         <button
           onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+          className="btn-purple w-9 h-9"
+          title="Novo Investimento"
         >
-          <Plus className="w-4 h-4" />
-          <span>Novo Investimento</span>
+          <Plus className="w-5 h-5" />
         </button>
       </div>
 
       {/* Allocation Warning */}
-      <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
+      <div className={`mb-4 p-3 rounded-xl flex items-center gap-2 ${
         allocationValid
-          ? 'bg-green-50 border border-green-200 text-green-700'
-          : 'bg-yellow-50 border border-yellow-200 text-yellow-700'
+          ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+          : 'bg-amber-50 border border-amber-200 text-amber-700'
       }`}>
         {allocationValid ? (
           <CheckCircle className="w-5 h-5" />
@@ -121,139 +126,143 @@ export function InvestmentsList() {
 
       {/* List */}
       {config.investments.length > 0 || isAdding ? (
-        <div className="border rounded-lg overflow-hidden overflow-x-auto">
+        <div className="card-subtle rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full min-w-[600px] text-sm">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-slate-600">Nome</th>
-                <th className="px-4 py-3 text-right text-slate-600">Meta Mínima</th>
-                <th className="px-4 py-3 text-center text-slate-600">Alocação</th>
-                <th className="px-4 py-3 text-right text-slate-600">Saldo Inicial</th>
-                <th className="px-4 py-3 text-center text-slate-600">Prior. Resgate</th>
-                <th className="px-4 py-3 text-center text-slate-600">Ações</th>
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-100/50">
+                <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Nome</th>
+                <th className="w-32 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Meta Mínima</th>
+                <th className="w-24 px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Alocação</th>
+                <th className="w-32 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Saldo Inicial</th>
+                <th className="w-28 px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Prior. Resgate</th>
+                <th className="w-28 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-slate-100">
               {isAdding && (
-                <tr className="bg-purple-50">
-                  <td className="px-4 py-2">
+                <tr className="bg-violet-50/50">
+                  <td className="px-4 py-3">
                     <input
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      className="w-full px-2 py-1 border rounded text-sm"
+                      className="input-field w-full h-10 px-3 text-sm"
                       placeholder="Nome"
                     />
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3">
                     <input
                       type="number"
                       value={newMinTarget || ''}
                       onChange={(e) => setNewMinTarget(e.target.value ? parseFloat(e.target.value) : null)}
-                      className="w-full px-2 py-1 border rounded text-sm text-right"
+                      className="input-field w-full h-10 px-3 text-sm text-right"
                       placeholder="Opcional"
                     />
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3">
                     <input
                       type="number"
                       min="0"
                       max="100"
                       value={newAllocation}
                       onChange={(e) => setNewAllocation(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2 py-1 border rounded text-sm text-center"
+                      className="input-field w-full h-10 px-3 text-sm text-center"
                       placeholder="%"
                     />
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3">
                     <CurrencyInput
                       value={newInitialBalance}
                       onChange={setNewInitialBalance}
                       compact
                     />
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3">
                     <input
                       type="number"
                       min="1"
                       value={newWithdrawalPriority}
                       onChange={(e) => setNewWithdrawalPriority(parseInt(e.target.value) || 1)}
-                      className="w-full px-2 py-1 border rounded text-sm text-center"
+                      className="input-field w-full h-10 px-3 text-sm text-center"
                     />
                   </td>
-                  <td className="px-4 py-2 text-center">
-                    <div className="flex gap-1 justify-center">
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1 justify-end">
                       <button
                         onClick={handleAdd}
-                        className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-xs"
+                        className="btn-purple w-9 h-9"
+                        title="Confirmar"
                       >
-                        Adicionar
+                        <Save className="w-4 h-4" />
                       </button>
                       <button
                         onClick={handleCancel}
-                        className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs"
+                        className="btn-action"
+                        title="Cancelar"
                       >
-                        Cancelar
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
                 </tr>
               )}
               {config.investments.map((investment) => (
-                <tr key={investment.id} className="hover:bg-slate-50">
+                <tr key={investment.id} className="hover:bg-slate-50 transition-colors">
                   {editingId === investment.id ? (
                     <>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <input
                           type="text"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="w-full px-2 py-1 border rounded text-sm"
+                          className="input-field w-full h-10 px-3 text-sm"
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           value={editMinTarget || ''}
                           onChange={(e) => setEditMinTarget(e.target.value ? parseFloat(e.target.value) : null)}
-                          className="w-full px-2 py-1 border rounded text-sm text-right"
+                          className="input-field w-full h-10 px-3 text-sm text-right"
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           value={editAllocation}
                           onChange={(e) => setEditAllocation(parseFloat(e.target.value) || 0)}
-                          className="w-full px-2 py-1 border rounded text-sm text-center"
+                          className="input-field w-full h-10 px-3 text-sm text-center"
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <CurrencyInput
                           value={editInitialBalance}
                           onChange={setEditInitialBalance}
                           compact
                         />
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           min="1"
                           value={editWithdrawalPriority}
                           onChange={(e) => setEditWithdrawalPriority(parseInt(e.target.value) || 1)}
-                          className="w-full px-2 py-1 border rounded text-sm text-center"
+                          className="input-field w-full h-10 px-3 text-sm text-center"
                         />
                       </td>
-                      <td className="px-4 py-2 text-center">
-                        <div className="flex gap-1 justify-center">
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 justify-end">
                           <button
                             onClick={handleSaveEdit}
-                            className="p-1 hover:bg-green-100 rounded text-green-600"
+                            className="btn-action text-emerald-600"
+                            title="Salvar"
                           >
                             <Save className="w-4 h-4" />
                           </button>
                           <button
                             onClick={handleCancelEdit}
-                            className="p-1 hover:bg-slate-100 rounded text-slate-600"
+                            className="btn-action"
+                            title="Cancelar"
                           >
                             <X className="w-4 h-4" />
                           </button>
@@ -262,34 +271,36 @@ export function InvestmentsList() {
                     </>
                   ) : (
                     <>
-                      <td className="px-4 py-2 font-medium">{investment.name}</td>
-                      <td className="px-4 py-2 text-right">
+                      <td className="px-4 py-3 font-medium text-slate-700">{investment.name}</td>
+                      <td className="px-4 py-3 text-right text-slate-600 tabular-nums">
                         {investment.minValueTarget
                           ? formatCurrency(investment.minValueTarget)
                           : '-'}
                       </td>
-                      <td className="px-4 py-2 text-center font-medium text-blue-600">
+                      <td className="px-4 py-3 text-center font-medium text-blue-500">
                         {investment.allocationPercent}%
                       </td>
-                      <td className="px-4 py-2 text-right font-medium text-green-600">
+                      <td className="px-4 py-3 text-right font-medium text-emerald-500 tabular-nums">
                         {formatCurrency(investment.initialBalance)}
                       </td>
-                      <td className="px-4 py-2 text-center">
-                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">
+                      <td className="px-4 py-3 text-center">
+                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-lg text-xs font-medium">
                           {investment.withdrawalPriority}
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-center">
-                        <div className="flex gap-1 justify-center">
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 justify-end">
                           <button
                             onClick={() => handleStartEdit(investment)}
-                            className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                            className="btn-action text-blue-500"
+                            title="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => removeInvestment(investment.id)}
-                            className="p-1 hover:bg-red-100 rounded text-red-600"
+                            className="btn-action text-rose-500"
+                            title="Remover"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -303,7 +314,7 @@ export function InvestmentsList() {
           </table>
         </div>
       ) : (
-        <p className="text-center text-slate-500 py-8 italic">
+        <p className="text-center text-slate-400 py-8 italic">
           Nenhum investimento cadastrado
         </p>
       )}

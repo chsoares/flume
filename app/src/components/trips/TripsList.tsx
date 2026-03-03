@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, MapPin } from 'lucide-react';
 import { TripForm } from './TripForm';
 import { differenceInDays } from 'date-fns';
 import type { Trip } from '../../types';
@@ -41,16 +41,21 @@ export function TripsList() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 border-b pb-3 gap-3">
-        <h3 className="text-lg md:text-xl font-bold text-slate-800">Viagens Planejadas</h3>
+    <div className="card p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-3 border-b border-slate-100 gap-3">
+        <div className="flex items-center gap-3">
+          <div className="icon-badge bg-gradient-to-br from-blue-500 to-cyan-500">
+            <MapPin className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="text-lg md:text-xl font-bold text-slate-700">Viagens Planejadas</h3>
+        </div>
         {!isAdding && (
           <button
             onClick={handleAddNew}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+            className="btn-accent w-9 h-9"
+            title="Nova Viagem"
           >
-            <Plus className="w-4 h-4" />
-            <span>Nova Viagem</span>
+            <Plus className="w-5 h-5" />
           </button>
         )}
       </div>
@@ -62,19 +67,19 @@ export function TripsList() {
 
       {/* Trips List */}
       {config.trips.length > 0 ? (
-        <div className="border rounded-lg overflow-hidden overflow-x-auto">
+        <div className="card-subtle rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full min-w-[600px] text-sm">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="px-4 py-3 text-left text-slate-600">Viagem</th>
-                <th className="px-4 py-3 text-center text-slate-600">Dias</th>
-                <th className="px-4 py-3 text-right text-slate-600">Orçamento Diário</th>
-                <th className="px-4 py-3 text-right text-slate-600">Gastos</th>
-                <th className="px-4 py-3 text-right text-slate-600">Total</th>
-                <th className="px-4 py-3 text-center text-slate-600">Ações</th>
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-100/50">
+                <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Viagem</th>
+                <th className="w-24 px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Dias</th>
+                <th className="w-36 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Orç. Diário</th>
+                <th className="w-28 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Gastos</th>
+                <th className="w-28 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Total</th>
+                <th className="w-28 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-slate-100">
               {config.trips.map((trip) => {
                 const days = differenceInDays(new Date(trip.endDate), new Date(trip.startDate)) + 1;
                 const total = calculateTripTotal(trip);
@@ -84,36 +89,38 @@ export function TripsList() {
                 );
 
                 return (
-                  <tr key={trip.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-2">
-                      <p className="font-medium text-slate-800">{trip.name}</p>
+                  <tr key={trip.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-slate-700">{trip.name}</p>
                       <p className="text-xs text-slate-500">{trip.startDate} - {trip.endDate}</p>
                     </td>
-                    <td className="px-4 py-2 text-center">
-                      <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs">
+                    <td className="px-4 py-3 text-center">
+                      <span className="bg-slate-200 text-slate-600 px-2 py-1 rounded-lg text-xs font-medium">
                         {days} dias
                       </span>
                     </td>
-                    <td className="px-4 py-2 text-right">
+                    <td className="px-4 py-3 text-right text-slate-600 tabular-nums">
                       {formatCurrency(trip.dailyBudget)}/dia
                     </td>
-                    <td className="px-4 py-2 text-right">
+                    <td className="px-4 py-3 text-right text-slate-600 tabular-nums">
                       {preExpensesTotal > 0 ? formatCurrency(preExpensesTotal) : '-'}
                     </td>
-                    <td className="px-4 py-2 text-right font-bold text-blue-600">
+                    <td className="px-4 py-3 text-right font-semibold text-blue-500 tabular-nums">
                       {formatCurrency(total)}
                     </td>
-                    <td className="px-4 py-2 text-center">
-                      <div className="flex gap-1 justify-center">
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1 justify-end">
                         <button
                           onClick={() => handleEdit(trip)}
-                          className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                          className="btn-action text-blue-500"
+                          title="Editar"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => removeTrip(trip.id)}
-                          className="p-1 hover:bg-red-100 rounded text-red-600"
+                          className="btn-action text-rose-500"
+                          title="Remover"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -126,7 +133,7 @@ export function TripsList() {
           </table>
         </div>
       ) : (
-        <p className="text-center text-slate-500 py-8 italic">
+        <p className="text-center text-slate-400 py-8 italic">
           Nenhuma viagem planejada
         </p>
       )}

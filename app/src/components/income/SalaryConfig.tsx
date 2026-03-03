@@ -5,7 +5,7 @@ import { useFinancialStore } from '../../store/financialStore';
 import { CurrencyInput } from '../shared/CurrencyInput';
 import { MonthPicker } from '../shared/MonthPicker';
 import { formatCurrency } from '../../utils/formatters';
-import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, X, DollarSign, RefreshCw } from 'lucide-react';
 
 export function SalaryConfig() {
   const { config, updateSalary } = useFinancialStore();
@@ -79,13 +79,18 @@ export function SalaryConfig() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
-      <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-6 border-b pb-3">
-        Salário Líquido Mensal
-      </h3>
+    <div className="card p-4 md:p-6">
+      <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+        <div className="icon-badge bg-gradient-to-br from-emerald-500 to-teal-500">
+          <DollarSign className="w-5 h-5 text-white" />
+        </div>
+        <h3 className="text-lg md:text-xl font-bold text-slate-700">
+          Salário Líquido Mensal
+        </h3>
+      </div>
 
       {/* Base Salary */}
-      <div className="mb-6 flex gap-3 items-end">
+      <div className="mb-6 flex flex-col sm:flex-row gap-3 sm:items-end">
         <CurrencyInput
           label="Salário Base Líquido"
           value={baseValue}
@@ -94,92 +99,97 @@ export function SalaryConfig() {
         />
         <button
           onClick={handleUpdateBase}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+          className="btn-success w-10 h-10"
+          title="Atualizar"
         >
-          Atualizar
+          <RefreshCw className="w-5 h-5" />
         </button>
       </div>
 
       {/* Scheduled Increases */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="font-semibold text-slate-700">Aumentos Programados</h4>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-semibold text-slate-600">Aumentos Programados</h4>
           <button
             onClick={() => setIsAddingIncrease(!isAddingIncrease)}
-            className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+            className="btn-success w-9 h-9"
+            title="Adicionar"
           >
-            <Plus className="w-4 h-4" />
-            <span>Adicionar</span>
+            <Plus className="w-5 h-5" />
           </button>
         </div>
 
         {config.salary.increases.length > 0 || isAddingIncrease ? (
-          <div className="border rounded-lg overflow-hidden overflow-x-auto">
+          <div className="card-subtle rounded-xl overflow-hidden overflow-x-auto">
             <table className="w-full min-w-[400px] text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="px-4 py-3 text-center text-slate-600">Mês</th>
-                  <th className="px-4 py-3 text-right text-slate-600">Novo Valor</th>
-                  <th className="px-4 py-3 text-center text-slate-600">Ações</th>
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-100/50">
+                  <th className="w-32 px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Mês</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Novo Valor</th>
+                  <th className="w-28 px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-slate-100">
                 {isAddingIncrease && (
-                  <tr className="bg-green-50">
-                    <td className="px-4 py-2">
+                  <tr className="bg-emerald-50/50">
+                    <td className="px-4 py-3">
                       <MonthPicker
                         value={newIncreaseMonth}
                         onChange={setNewIncreaseMonth}
                       />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <CurrencyInput
                         value={newIncreaseValue}
                         onChange={setNewIncreaseValue}
                         compact
                       />
                     </td>
-                    <td className="px-4 py-2 text-center">
-                      <div className="flex gap-1 justify-center">
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1 justify-end">
                         <button
                           onClick={handleAddIncrease}
-                          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs"
+                          className="btn-success w-9 h-9"
+                          title="Confirmar"
                         >
-                          Adicionar
+                          <Save className="w-4 h-4" />
                         </button>
                         <button
                           onClick={handleCancelIncrease}
-                          className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs"
+                          className="btn-action"
+                          title="Cancelar"
                         >
-                          Cancelar
+                          <X className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
                   </tr>
                 )}
                 {config.salary.increases.map((increase) => (
-                  <tr key={increase.month} className="hover:bg-slate-50">
+                  <tr key={increase.month} className="hover:bg-slate-50 transition-colors">
                     {editingMonth === increase.month ? (
                       <>
-                        <td className="px-4 py-2 text-center">{increase.month}</td>
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-3 text-slate-600">{increase.month}</td>
+                        <td className="px-4 py-3">
                           <CurrencyInput
                             value={editIncreaseValue}
                             onChange={setEditIncreaseValue}
                             compact
                           />
                         </td>
-                        <td className="px-4 py-2 text-center">
-                          <div className="flex gap-1 justify-center">
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 justify-end">
                             <button
                               onClick={handleSaveEdit}
-                              className="p-1 hover:bg-green-100 rounded text-green-600"
+                              className="btn-action text-emerald-600"
+                              title="Salvar"
                             >
                               <Save className="w-4 h-4" />
                             </button>
                             <button
                               onClick={handleCancelEdit}
-                              className="p-1 hover:bg-slate-100 rounded text-slate-600"
+                              className="btn-action"
+                              title="Cancelar"
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -188,21 +198,23 @@ export function SalaryConfig() {
                       </>
                     ) : (
                       <>
-                        <td className="px-4 py-2 text-center">{increase.month}</td>
-                        <td className="px-4 py-2 text-right font-bold text-green-600">
+                        <td className="px-4 py-3 text-slate-600">{increase.month}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-emerald-500 tabular-nums">
                           {formatCurrency(increase.value)}
                         </td>
-                        <td className="px-4 py-2 text-center">
-                          <div className="flex gap-1 justify-center">
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1 justify-end">
                             <button
                               onClick={() => handleStartEdit(increase.month, increase.value)}
-                              className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                              className="btn-action text-blue-500"
+                              title="Editar"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleRemoveIncrease(increase.month)}
-                              className="p-1 hover:bg-red-100 rounded text-red-600"
+                              className="btn-action text-rose-500"
+                              title="Remover"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -216,7 +228,7 @@ export function SalaryConfig() {
             </table>
           </div>
         ) : (
-          <p className="text-center text-slate-500 py-4 italic text-sm">
+          <p className="text-center text-slate-400 py-6 italic text-sm">
             Nenhum aumento programado
           </p>
         )}

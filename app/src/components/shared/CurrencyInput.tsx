@@ -65,14 +65,15 @@ export function CurrencyInput({
   if (compact) {
     return (
       <div className={`relative ${className}`}>
-        <span className="absolute left-2 top-1 text-slate-400 text-sm">R$</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">R$</span>
         <input
           type="text"
           value={displayValue}
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full pl-8 pr-2 py-1 border border-slate-300 rounded text-sm text-right focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+          className="input-field w-full h-10 pl-9 pr-3 text-sm text-right tabular-nums
+                   disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
     );
@@ -86,14 +87,15 @@ export function CurrencyInput({
         </label>
       )}
       <div className="relative">
-        <span className="absolute left-3 top-2 text-slate-400">R$</span>
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">R$</span>
         <input
           type="text"
           value={displayValue}
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-slate-100 disabled:cursor-not-allowed"
+          className="input-field w-full h-10 pl-12 pr-4 tabular-nums
+                   disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
     </div>

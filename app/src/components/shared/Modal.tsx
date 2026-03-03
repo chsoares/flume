@@ -44,29 +44,34 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', headerAct
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-0 md:p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 md:p-6 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className={`bg-white md:rounded-xl shadow-2xl w-full ${sizeClasses[size]} max-h-screen md:max-h-[90vh] overflow-hidden`}
+        className={`
+          card shadow-xl
+          w-full ${sizeClasses[size]} max-h-[95vh] md:max-h-[90vh] overflow-hidden
+          animate-fade-in-up
+        `}
         onClick={(e) => e.stopPropagation()}
+        style={{ animationDelay: '0s' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-200">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-100">
           <h2 className="text-lg md:text-2xl font-bold text-slate-800">{title}</h2>
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-2">
             {headerActions}
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             >
-              <X className="w-5 h-5 text-slate-500" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(100vh-72px)] md:max-h-[calc(90vh-80px)]">
+        <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(95vh-80px)] md:max-h-[calc(90vh-80px)]">
           {children}
         </div>
       </div>

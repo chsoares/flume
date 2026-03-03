@@ -47,15 +47,15 @@ export function MonthPicker({
   return (
     <div className={className}>
       {label && (
-        <label className="block text-sm font-medium text-slate-600 mb-1">
+        <label className="block text-sm font-medium text-slate-500 mb-2">
           {label}
         </label>
       )}
-      <div className="flex gap-1 items-center">
+      <div className="flex gap-2 items-center">
         <select
           value={year}
           onChange={(e) => handleYearChange(e.target.value)}
-          className="px-2 py-1 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+          className="select-field h-10 px-3 text-sm"
         >
           <option value="">Ano</option>
           {years.map((y) => (
@@ -68,7 +68,7 @@ export function MonthPicker({
         <select
           value={month}
           onChange={(e) => handleMonthChange(e.target.value)}
-          className="px-2 py-1 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+          className="select-field h-10 px-3 text-sm"
         >
           <option value="">Mês</option>
           {MONTHS.map((m) => (
