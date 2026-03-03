@@ -629,7 +629,8 @@ export const useFinancialStore = create<FinancialStore>((set, get) => ({
     // Buscar saldos do ano anterior
     const previousYearBalances = state.yearEndBalances[state.year - 1];
 
-    const newMonths = generateMonthsForYear(state.year, state.config, previousYearBalances);
+    // Passar meses existentes para usar dados reais de meses finalizados
+    const newMonths = generateMonthsForYear(state.year, state.config, previousYearBalances, state.months);
 
     // Preservar realData dos meses já finalizados
     const preservedMonths = newMonths.map((newMonth) => {

@@ -274,11 +274,13 @@ export function calculateProjectedMonth(
 
 /**
  * Gera todos os meses de um ano
+ * @param existingMonths - Meses existentes para preservar dados finalizados e usar saldos reais
  */
 export function generateMonthsForYear(
   year: number,
   config: FinancialState['config'],
-  yearStartBalances?: { [investmentId: string]: number }
+  yearStartBalances?: { [investmentId: string]: number },
+  existingMonths?: MonthData[]
 ): MonthData[] {
   const months: MonthData[] = [];
   let previousInvestments: MonthData['investments'] | null = null;
@@ -298,6 +300,38 @@ export function generateMonthsForYear(
 
   for (let month = 1; month <= 12; month++) {
     const monthStr = format(new Date(year, month - 1, 1), 'yyyy-MM');
+
+    // Verificar se o mês anterior está finalizado e usar seus dados reais
+    if (month > 1 && existingMonths) {
+      const prevMonthStr = format(new Date(year, month - 2, 1), 'yyyy-MM');
+      const prevExistingMonth = existingMonths.find(m => m.month === prevMonthStr);
+
+      if (prevExistingMonth?.status === 'finalized' && prevExistingMonth.realData?.investments) {
+        // Usar saldos reais do mês anterior finalizado
+        previousInvestments = {};
+        config.investments.forEach((inv) => {
+          const realInvData = prevExistingMonth.realData!.investments[inv.id];
+          if (realInvData) {
+            previousInvestments![inv.id] = {
+              previousBalance: realInvData.finalBalance,
+              deposit: 0,
+              yield: 0,
+              finalBalance: realInvData.finalBalance,
+            };
+          } else {
+            // Fallback para dados projetados se não houver dados reais para este investimento
+            const projectedInvData = prevExistingMonth.investments[inv.id];
+            previousInvestments![inv.id] = {
+              previousBalance: projectedInvData?.finalBalance ?? inv.initialBalance,
+              deposit: 0,
+              yield: 0,
+              finalBalance: projectedInvData?.finalBalance ?? inv.initialBalance,
+            };
+          }
+        });
+      }
+    }
+
     const monthData = calculateProjectedMonth(monthStr, config, previousInvestments);
     months.push(monthData);
     previousInvestments = monthData.investments;
