@@ -114,7 +114,7 @@ export function FixedExpensesList() {
 
   return (
     <div className="card p-4 md:p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-3 border-b border-slate-100 gap-3">
+      <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 gap-3">
         <div className="flex items-center gap-3">
           <div className="icon-badge bg-gradient-to-br from-pink-500 to-rose-500">
             <Receipt className="w-5 h-5 text-white" />

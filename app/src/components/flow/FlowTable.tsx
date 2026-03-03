@@ -18,31 +18,31 @@ export function FlowTable({ months, onMonthClick }: FlowTableProps) {
         {/* Header */}
         <thead className="shrink-0 bg-slate-100/50 border-b border-slate-200">
           <tr className="flex w-full">
-            <th className="flex-none w-24 md:w-36 px-3 md:px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <th className="flex-none w-12 md:w-36 px-2 md:px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
               <span className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span className="hidden md:inline">Mês</span>
               </span>
             </th>
-            <th className="flex-1 px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <th className="flex-1 px-2 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
               <span className="inline-flex items-center justify-end gap-2">
                 <DollarSign className="w-4 h-4" />
                 <span className="hidden md:inline">Receitas</span>
               </span>
             </th>
-            <th className="flex-1 px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <th className="flex-1 px-2 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
               <span className="inline-flex items-center justify-end gap-2">
                 <CreditCard className="w-4 h-4" />
                 <span className="hidden md:inline">Despesas</span>
               </span>
             </th>
-            <th className="flex-1 px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <th className="flex-1 px-2 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
               <span className="inline-flex items-center justify-end gap-2">
                 <PiggyBank className="w-4 h-4" />
                 <span className="hidden md:inline">Movimentações</span>
               </span>
             </th>
-            <th className="flex-1 px-3 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <th className="flex-1 px-2 md:px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
               <span className="inline-flex items-center justify-end gap-2">
                 <Wallet className="w-4 h-4" />
                 <span className="hidden md:inline">Saldo</span>
@@ -118,8 +118,8 @@ export function FlowTable({ months, onMonthClick }: FlowTableProps) {
                 onClick={() => onMonthClick(month)}
                 className={`flex w-full items-center flex-1 border-b border-slate-100 last:border-b-0 ${rowClass}`}
               >
-                <td className="flex-none w-24 md:w-36 px-3 md:px-6 whitespace-nowrap text-left">
-                  <div className="flex items-center gap-2">
+                <td className="flex-none w-12 md:w-36 px-2 md:px-6 whitespace-nowrap text-left">
+                  <div className="flex items-center gap-1 md:gap-2">
                     {isOngoing && (
                       <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     )}
@@ -134,19 +134,19 @@ export function FlowTable({ months, onMonthClick }: FlowTableProps) {
                     )}
                   </div>
                 </td>
-                <td className={`flex-1 px-3 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-semibold text-emerald-500 text-right ${valueOpacity}`}>
+                <td className={`flex-1 px-2 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-semibold text-emerald-500 text-right ${valueOpacity}`}>
                   <span className="md:hidden">{formatCurrencyCompact(totalIncome)}</span>
                   <span className="hidden md:inline">{formatCurrency(totalIncome)}</span>
                 </td>
-                <td className={`flex-1 px-3 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-semibold text-rose-500 text-right ${valueOpacity}`}>
+                <td className={`flex-1 px-2 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-semibold text-rose-500 text-right ${valueOpacity}`}>
                   <span className="md:hidden">{formatCurrencyCompact(totalExpenses)}</span>
                   <span className="hidden md:inline">{formatCurrency(totalExpenses)}</span>
                 </td>
-                <td className={`flex-1 px-3 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-semibold ${depositsColor} text-right ${valueOpacity}`}>
+                <td className={`flex-1 px-2 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-semibold ${depositsColor} text-right ${valueOpacity}`}>
                   <span className="md:hidden">{formatCurrencyCompact(totalDeposits)}</span>
                   <span className="hidden md:inline">{formatCurrency(totalDeposits)}</span>
                 </td>
-                <td className={`flex-1 px-3 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-bold text-slate-700 text-right ${valueOpacity}`}>
+                <td className={`flex-1 px-2 md:px-6 whitespace-nowrap tabular-nums text-sm md:text-base font-bold text-slate-700 text-right ${valueOpacity}`}>
                   <span className="md:hidden">{formatCurrencyCompact(finalBalance)}</span>
                   <span className="hidden md:inline">{formatCurrency(finalBalance)}</span>
                 </td>

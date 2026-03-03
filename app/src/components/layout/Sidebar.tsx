@@ -136,9 +136,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar - fixed */}
       <aside
         className={`
-          fixed inset-y-4 left-4 md:top-6 md:bottom-6 md:left-6 z-50
+          fixed inset-0 md:inset-y-6 md:left-6 md:right-auto z-50
           px-5 pb-6 pt-6
-          w-72 sidebar flex flex-col overflow-y-auto
+          w-full md:w-72 flex flex-col overflow-y-auto
+          bg-slate-800 md:sidebar
           transform transition-transform duration-300 ease-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}

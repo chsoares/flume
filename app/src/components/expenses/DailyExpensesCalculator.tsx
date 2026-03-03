@@ -42,7 +42,7 @@ export function DailyExpensesCalculator() {
         </h3>
       </div>
 
-      <div className="mb-6 flex flex-col sm:flex-row gap-3 sm:items-end">
+      <div className="mb-6 flex gap-3 items-end">
         <CurrencyInput
           label="Valor Estimado Mensal"
           value={estimate}
@@ -51,7 +51,7 @@ export function DailyExpensesCalculator() {
         />
         <button
           onClick={handleUpdate}
-          className="btn-danger w-10 h-10"
+          className="btn-danger w-10 h-10 shrink-0"
           title="Atualizar"
         >
           <RefreshCw className="w-5 h-5" />

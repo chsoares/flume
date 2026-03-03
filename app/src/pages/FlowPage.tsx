@@ -124,7 +124,7 @@ export function FlowPage() {
   ];
 
   return (
-    <div className="flex flex-col h-full md:h-[calc(100vh-3rem)] gap-4">
+    <div className="flex flex-col h-[calc(100vh-6rem)] md:h-[calc(100vh-3rem)] gap-4">
       {/* Toggle Overview Button (mobile only) */}
       <button
         onClick={() => setShowOverview(!showOverview)}
