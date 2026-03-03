@@ -63,9 +63,10 @@ export function InvestmentDashboard() {
       {/* Investment Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {investmentStats.map((inv) => {
-          const growth = inv.projectedBalance - inv.currentBalance;
+          // Crescimento anual: projetado final - inicial do ano
+          const growth = inv.projectedBalance - inv.yearInitialBalance;
           const growthPercent =
-            inv.currentBalance > 0 ? (growth / inv.currentBalance) * 100 : 0;
+            inv.yearInitialBalance > 0 ? (growth / inv.yearInitialBalance) * 100 : 0;
 
           return (
             <div
