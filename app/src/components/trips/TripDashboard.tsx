@@ -2,14 +2,38 @@
 
 import { useFinancialStore } from '../../store/financialStore';
 import { formatCurrency } from '../../utils/formatters';
-import { Calendar, Plane, CheckCircle2, Clock } from 'lucide-react';
+import { Calendar, Plane, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Trip, MonthData } from '../../types';
 
-interface TripRealData {
+type TripStatus = 'planned' | 'partial' | 'finalized';
+
+interface TripComputedData {
+  status: TripStatus;
   dailyTotal: number;
   dailyPerDay: number;
+  /** Valor planejado dos meses já finalizados (para calcular delta parcial) */
+  plannedPortionOfFinalized: number;
+  /** Valor real dos meses finalizados */
+  realPortionOfFinalized: number;
+}
+
+/**
+ * Calcula dias da viagem dentro de um mês específico.
+ */
+function getTripDaysInMonth(trip: Trip, monthStr: string): number {
+  const [year, month] = monthStr.split('-').map(Number);
+  const monthStart = new Date(year, month - 1, 1);
+  const monthEnd = new Date(year, month, 0);
+  const tripStart = parseISO(trip.startDate);
+  const tripEnd = parseISO(trip.endDate);
+
+  if (tripStart > monthEnd || tripEnd < monthStart) return 0;
+
+  const effectiveStart = tripStart > monthStart ? tripStart : monthStart;
+  const effectiveEnd = tripEnd < monthEnd ? tripEnd : monthEnd;
+  return differenceInDays(effectiveEnd, effectiveStart) + 1;
 }
 
 /**
@@ -34,41 +58,62 @@ function getTripMonths(trip: Trip): string[] {
 }
 
 /**
- * Verifica se todos os meses da viagem estão finalizados e extrai os valores reais.
+ * Calcula valores da viagem progressivamente:
+ * - Meses finalizados usam valores reais
+ * - Meses não finalizados usam estimativa (dailyBudget × dias)
  */
-function getTripRealData(
+function getTripComputedData(
   trip: Trip,
-  months: MonthData[]
-): TripRealData | null {
+  allMonths: MonthData[]
+): TripComputedData {
   const tripMonths = getTripMonths(trip);
-  const days = differenceInDays(parseISO(trip.endDate), parseISO(trip.startDate)) + 1;
+  const totalDays = differenceInDays(parseISO(trip.endDate), parseISO(trip.startDate)) + 1;
 
-  let totalDailyReal = 0;
-  let allFinalized = true;
+  let dailyTotal = 0;
+  let plannedPortionOfFinalized = 0;
+  let realPortionOfFinalized = 0;
+  let finalizedCount = 0;
 
   for (const monthStr of tripMonths) {
-    const monthData = months.find((m) => m.month === monthStr);
-    if (!monthData || monthData.status !== 'finalized' || !monthData.realData) {
-      allFinalized = false;
-      break;
-    }
+    const monthData = allMonths.find((m) => m.month === monthStr);
+    const daysInMonth = getTripDaysInMonth(trip, monthStr);
+    const plannedForMonth = daysInMonth * trip.dailyBudget;
 
-    const tripReal = monthData.realData.expenses.trips.find((t) => t.id === trip.id);
-    if (!tripReal) continue;
+    if (monthData?.status === 'finalized' && monthData.realData) {
+      finalizedCount++;
+      plannedPortionOfFinalized += plannedForMonth;
 
-    // Somar apenas itens de orçamento diário (não "Gastos" que são preExpenses)
-    for (const item of tripReal.items) {
-      if (item.description !== 'Gastos') {
-        totalDailyReal += item.value;
+      const tripReal = monthData.realData.expenses.trips.find((t) => t.id === trip.id);
+      let realDailyForMonth = 0;
+      if (tripReal) {
+        for (const item of tripReal.items) {
+          if (item.description !== 'Gastos') {
+            realDailyForMonth += item.value;
+          }
+        }
       }
+
+      realPortionOfFinalized += realDailyForMonth;
+      dailyTotal += realDailyForMonth;
+    } else {
+      // Mês não finalizado: usar estimativa
+      dailyTotal += plannedForMonth;
     }
   }
 
-  if (!allFinalized) return null;
+  let status: TripStatus = 'planned';
+  if (finalizedCount > 0 && finalizedCount < tripMonths.length) {
+    status = 'partial';
+  } else if (finalizedCount === tripMonths.length) {
+    status = 'finalized';
+  }
 
   return {
-    dailyTotal: totalDailyReal,
-    dailyPerDay: days > 0 ? totalDailyReal / days : 0,
+    status,
+    dailyTotal,
+    dailyPerDay: totalDays > 0 ? dailyTotal / totalDays : 0,
+    plannedPortionOfFinalized,
+    realPortionOfFinalized,
   };
 }
 
@@ -110,20 +155,22 @@ export function TripDashboard() {
             const plannedDailyTotal = days * trip.dailyBudget;
             const plannedTotal = plannedDailyTotal + preExpensesTotal;
 
-            // Valores reais (null se viagem ainda não concluída)
-            const realData = getTripRealData(trip, months);
-            const isFinalized = realData !== null;
+            // Valores computados (mix de real + projetado)
+            const computed = getTripComputedData(trip, months);
+            const hasRealData = computed.status !== 'planned';
 
             // Valores a exibir
-            const displayDailyPerDay = isFinalized ? realData.dailyPerDay : trip.dailyBudget;
-            const displayDailyTotal = isFinalized ? realData.dailyTotal : plannedDailyTotal;
-            const displayTotal = isFinalized
-              ? preExpensesTotal + realData.dailyTotal
+            const displayDailyPerDay = hasRealData ? computed.dailyPerDay : trip.dailyBudget;
+            const displayDailyTotal = hasRealData ? computed.dailyTotal : plannedDailyTotal;
+            const displayTotal = hasRealData
+              ? preExpensesTotal + computed.dailyTotal
               : plannedTotal;
 
-            // Deltas
-            const dailyDelta = isFinalized ? realData.dailyTotal - plannedDailyTotal : 0;
-            const totalDelta = isFinalized ? displayTotal - plannedTotal : 0;
+            // Deltas (compara apenas a porção finalizada vs seu planejado)
+            const dailyDelta = hasRealData
+              ? computed.realPortionOfFinalized - computed.plannedPortionOfFinalized
+              : 0;
+            const totalDelta = dailyDelta;
 
             return (
               <div
@@ -132,10 +179,15 @@ export function TripDashboard() {
               >
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-bold text-slate-700">{trip.name}</h4>
-                  {isFinalized ? (
+                  {computed.status === 'finalized' ? (
                     <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-lg text-xs font-medium">
                       <CheckCircle2 className="w-3 h-3" />
                       Realizado
+                    </span>
+                  ) : computed.status === 'partial' ? (
+                    <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-lg text-xs font-medium">
+                      <Loader2 className="w-3 h-3" />
+                      Parcial
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 px-2 py-0.5 rounded-lg text-xs font-medium">
@@ -157,7 +209,7 @@ export function TripDashboard() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">
-                      {isFinalized ? 'Média diária:' : 'Orçamento diário:'}
+                      {hasRealData ? 'Média diária:' : 'Orçamento diário:'}
                     </span>
                     <span className="font-medium text-slate-700 tabular-nums">
                       {formatCurrency(displayDailyPerDay)}/dia
@@ -165,13 +217,13 @@ export function TripDashboard() {
                   </div>
                   <div className="flex justify-between items-baseline">
                     <span className="text-slate-500">
-                      {isFinalized ? 'Gastos diários:' : 'Diária total:'}
+                      {hasRealData ? 'Gastos diários:' : 'Diária total:'}
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span className="font-medium text-slate-700 tabular-nums">
                         {formatCurrency(displayDailyTotal)}
                       </span>
-                      {isFinalized && dailyDelta !== 0 && (
+                      {hasRealData && dailyDelta !== 0 && (
                         <span
                           className={`text-xs tabular-nums ${
                             dailyDelta > 0 ? 'text-rose-500' : 'text-emerald-500'
@@ -195,7 +247,7 @@ export function TripDashboard() {
                       <span className="font-bold text-blue-500 tabular-nums">
                         {formatCurrency(displayTotal)}
                       </span>
-                      {isFinalized && totalDelta !== 0 && (
+                      {hasRealData && totalDelta !== 0 && (
                         <span
                           className={`text-xs tabular-nums ${
                             totalDelta > 0 ? 'text-rose-500' : 'text-emerald-500'
