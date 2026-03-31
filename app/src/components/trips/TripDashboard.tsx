@@ -13,10 +13,6 @@ interface TripComputedData {
   status: TripStatus;
   dailyTotal: number;
   dailyPerDay: number;
-  /** Valor planejado dos meses já finalizados (para calcular delta parcial) */
-  plannedPortionOfFinalized: number;
-  /** Valor real dos meses finalizados */
-  realPortionOfFinalized: number;
 }
 
 /**
@@ -70,8 +66,6 @@ function getTripComputedData(
   const totalDays = differenceInDays(parseISO(trip.endDate), parseISO(trip.startDate)) + 1;
 
   let dailyTotal = 0;
-  let plannedPortionOfFinalized = 0;
-  let realPortionOfFinalized = 0;
   let finalizedCount = 0;
 
   for (const monthStr of tripMonths) {
@@ -81,7 +75,6 @@ function getTripComputedData(
 
     if (monthData?.status === 'finalized' && monthData.realData) {
       finalizedCount++;
-      plannedPortionOfFinalized += plannedForMonth;
 
       const tripReal = monthData.realData.expenses.trips.find((t) => t.id === trip.id);
       let realDailyForMonth = 0;
@@ -93,7 +86,6 @@ function getTripComputedData(
         }
       }
 
-      realPortionOfFinalized += realDailyForMonth;
       dailyTotal += realDailyForMonth;
     } else {
       // Mês não finalizado: usar estimativa
@@ -112,8 +104,6 @@ function getTripComputedData(
     status,
     dailyTotal,
     dailyPerDay: totalDays > 0 ? dailyTotal / totalDays : 0,
-    plannedPortionOfFinalized,
-    realPortionOfFinalized,
   };
 }
 
@@ -166,11 +156,6 @@ export function TripDashboard() {
               ? preExpensesTotal + computed.dailyTotal
               : plannedTotal;
 
-            // Deltas (compara apenas a porção finalizada vs seu planejado)
-            const dailyDelta = hasRealData
-              ? computed.realPortionOfFinalized - computed.plannedPortionOfFinalized
-              : 0;
-            const totalDelta = dailyDelta;
 
             return (
               <div
@@ -215,25 +200,13 @@ export function TripDashboard() {
                       {formatCurrency(displayDailyPerDay)}/dia
                     </span>
                   </div>
-                  <div className="flex justify-between items-baseline">
+                  <div className="flex justify-between">
                     <span className="text-slate-500">
                       {hasRealData ? 'Gastos diários:' : 'Diária total:'}
                     </span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-medium text-slate-700 tabular-nums">
-                        {formatCurrency(displayDailyTotal)}
-                      </span>
-                      {hasRealData && dailyDelta !== 0 && (
-                        <span
-                          className={`text-xs tabular-nums ${
-                            dailyDelta > 0 ? 'text-rose-500' : 'text-emerald-500'
-                          }`}
-                        >
-                          {dailyDelta > 0 ? '+' : ''}
-                          {formatCurrency(dailyDelta)}
-                        </span>
-                      )}
-                    </div>
+                    <span className="font-medium text-slate-700 tabular-nums">
+                      {formatCurrency(displayDailyTotal)}
+                    </span>
                   </div>
                   {preExpensesTotal > 0 && (
                     <div className="flex justify-between">
@@ -241,23 +214,11 @@ export function TripDashboard() {
                       <span className="font-medium text-slate-700 tabular-nums">{formatCurrency(preExpensesTotal)}</span>
                     </div>
                   )}
-                  <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline">
+                  <div className="pt-2 border-t border-slate-200 flex justify-between">
                     <span className="text-slate-600 font-medium">Total:</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-bold text-blue-500 tabular-nums">
-                        {formatCurrency(displayTotal)}
-                      </span>
-                      {hasRealData && totalDelta !== 0 && (
-                        <span
-                          className={`text-xs tabular-nums ${
-                            totalDelta > 0 ? 'text-rose-500' : 'text-emerald-500'
-                          }`}
-                        >
-                          {totalDelta > 0 ? '+' : ''}
-                          {formatCurrency(totalDelta)}
-                        </span>
-                      )}
-                    </div>
+                    <span className="font-bold text-blue-500 tabular-nums">
+                      {formatCurrency(displayTotal)}
+                    </span>
                   </div>
                 </div>
               </div>
